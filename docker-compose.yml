@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: heboard-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: heboard
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - heboard-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: heboard-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - heboard-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: heboard-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:mysql://mysql:3306/heboard?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      DB_USERNAME: root
+      DB_PASSWORD: root
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - heboard-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  heboard-network:
+    driver: bridge
