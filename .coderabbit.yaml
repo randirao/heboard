@@ -1,6 +1,7 @@
 # CodeRabbit 설정 파일
 
-language: ko
+preferences:
+  language: ko
 
 reviews:
   auto_review:
