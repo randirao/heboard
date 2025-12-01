@@ -1,4 +1,4 @@
-FROM gradle:9.6-jdk17 AS build
+FROM gradle:8.14-jdk17 AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY src ./src
 
 RUN gradle build -x test --no-daemon
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
