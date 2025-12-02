@@ -31,9 +31,9 @@ public class GlobalExceptionHandler {
         return ApiResponse.error(e.getMessage());
     }
 
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ApiResponse<Void>> handleInvalidPasswordException(InvalidPasswordException e) {
-        log.warn("인증 실패: {}", e.getMessage());
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException e) {
+        log.warn("인증 실패");
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(e.getMessage()));

@@ -6,7 +6,7 @@ import com.example.heboard.domain.auth.dto.TokenInfo;
 import com.example.heboard.domain.user.dto.UserInfo;
 import com.example.heboard.domain.user.entity.User;
 import com.example.heboard.domain.user.repository.UserRepository;
-import com.example.heboard.global.exception.InvalidPasswordException;
+import com.example.heboard.global.exception.AuthenticationException;
 import com.example.heboard.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,10 +26,10 @@ public class AuthService {
     @Transactional
     public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new InvalidPasswordException("이메일 또는 비밀번호가 올바르지 않습니다"));
+                .orElseThrow(() -> new AuthenticationException("이메일 또는 비밀번호가 올바르지 않습니다"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidPasswordException("이메일 또는 비밀번호가 올바르지 않습니다");
+            throw new AuthenticationException("이메일 또는 비밀번호가 올바르지 않습니다");
         }
 
         String accessToken = jwtTokenProvider.createAccessToken(user);
