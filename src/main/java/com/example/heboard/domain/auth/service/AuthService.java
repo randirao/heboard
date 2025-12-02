@@ -2,6 +2,8 @@ package com.example.heboard.domain.auth.service;
 
 import com.example.heboard.domain.auth.dto.LoginRequest;
 import com.example.heboard.domain.auth.dto.LoginResponse;
+import com.example.heboard.domain.auth.dto.TokenInfo;
+import com.example.heboard.domain.user.dto.UserInfo;
 import com.example.heboard.domain.user.entity.User;
 import com.example.heboard.domain.user.repository.UserRepository;
 import com.example.heboard.global.exception.InvalidPasswordException;
@@ -35,6 +37,9 @@ public class AuthService {
 
         log.info("로그인 성공: userId={}", user.getId());
 
-        return new LoginResponse(accessToken, refreshToken, user.getId(), user.getNickname());
+        TokenInfo tokenInfo = new TokenInfo(accessToken, refreshToken);
+        UserInfo userInfo = new UserInfo(user.getId(), user.getNickname(), user.getEmail());
+
+        return new LoginResponse(tokenInfo, userInfo);
     }
 }

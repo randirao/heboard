@@ -1,5 +1,6 @@
 package com.example.heboard.domain.auth.dto;
 
+import com.example.heboard.domain.user.dto.UserInfo;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -7,8 +8,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LoginResponse {
 
-    private String accessToken;
-    private String refreshToken;
-    private Long userId;
-    private String nickname;
+    private TokenInfo token;
+    private UserInfo user;
 }
