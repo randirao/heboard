@@ -39,3 +39,4 @@ out/
 ### Environment Variables ###
 .env
 application-local.properties
+application-prod.properties
