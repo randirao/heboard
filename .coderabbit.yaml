@@ -1,28 +1,17 @@
 # CodeRabbit 설정 파일
 
-# 언어 설정
-language: ko
+preferences:
+  language: ko
 
-# 리뷰 설정
 reviews:
-  # 자동 리뷰 활성화
   auto_review:
-    enabled: true
-    drafts: false
-
-  # 리뷰 레벨 (basic, normal, comprehensive)
-  level: normal
-
-  # 특정 파일 패턴 제외
-  path_filters:
+    enabled: true    # 자동 리뷰 활성화
+    drafts: true     # Draft PR도 리뷰
+  level: comprehensive  # 포괄적 리뷰
+  path_filters:          # 파일 패턴 제외 없음
     - "!**/*.md"
     - "!**/package-lock.json"
     - "!**/yarn.lock"
-    - "!**/*.svg"
-    - "!**/*.png"
-    - "!**/*.jpg"
-
-  # 리뷰 포커스
   focus:
     - correctness
     - performance
@@ -30,43 +19,29 @@ reviews:
     - maintainability
     - best_practices
 
-# 채팅 설정
 chat:
-  # AI 채팅 활성화
   enabled: true
-
-  # 자동 응답
   auto_reply: false
 
-# 요약 설정
 summaries:
-  # PR 요약 생성
   enabled: true
-
-  # 릴리즈 노트 생성
   release_notes: true
 
-# 시 설정
 poem:
   enabled: false
 
-# 레이블 자동 추가
 labels:
   enabled: true
 
-# 리뷰어 설정
 reviewers:
-  # 자동으로 리뷰어 요청
-  auto_request: false
+  auto_request: true   # 자동으로 리뷰어 요청
 
-# 커스텀 프롬프트
 custom_prompts:
   - name: "보안 체크"
     prompt: "보안 취약점이 있는지 특히 주의깊게 검토해주세요"
   - name: "성능 체크"
     prompt: "성능 이슈가 있는지 확인해주세요"
 
-# 코드 스타일 가이드
 knowledge_base:
   - "TypeScript와 React 모범 사례를 따르세요"
   - "테스트 코드 작성을 권장합니다"
