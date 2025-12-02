@@ -25,8 +25,8 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
-    @Getter(AccessLevel.NONE)
     @Column(nullable = false)
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private String password;
 
     @Column(nullable = false, unique = true, length = 50)
@@ -49,9 +49,5 @@ public class User {
 
     public void updatePassword(String password) {
         this.password = password;
-    }
-
-    public String getPassword() {
-        return password;
     }
 }
