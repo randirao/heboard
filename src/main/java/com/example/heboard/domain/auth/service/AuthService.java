@@ -33,7 +33,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(user);
         String refreshToken = jwtTokenProvider.createRefreshToken(user);
 
-        log.info("로그인 성공: userId={}, email={}", user.getId(), user.getEmail());
+        log.info("로그인 성공: userId={}", user.getId());
 
         return new LoginResponse(accessToken, refreshToken, user.getId(), user.getNickname());
     }
