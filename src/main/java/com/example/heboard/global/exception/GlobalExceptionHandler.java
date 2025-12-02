@@ -20,7 +20,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiResponse<Void> handleDuplicateEmailException(DuplicateEmailException e) {
-        log.warn("DuplicateEmailException: {}", e.getMessage());
+        log.warn("이메일 중복");
+        return ApiResponse.error(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateNicknameException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Void> handleDuplicateNicknameException(DuplicateNicknameException e) {
+        log.warn("닉네임 중복");
         return ApiResponse.error(e.getMessage());
     }
 
