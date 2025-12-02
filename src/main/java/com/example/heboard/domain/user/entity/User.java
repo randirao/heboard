@@ -25,6 +25,7 @@ public class User {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @Getter(AccessLevel.NONE)
     @Column(nullable = false)
     private String password;
 
@@ -48,5 +49,9 @@ public class User {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
     }
 }
