@@ -1,23 +1,23 @@
-# CodeRabbit 설정 파일
+# CodeRabbit 설정 파일 (한국어 리뷰 최적화 버전)
 
 preferences:
-  language: ko
+  language: ko      # 기본 리뷰 언어를 한국어로 지정
 
 reviews:
   auto_review:
-    enabled: true    # 자동 리뷰 활성화
-    drafts: true     # Draft PR도 리뷰
-  level: comprehensive  # 포괄적 리뷰
-  path_filters:          # 파일 패턴 제외 없음
-    - "!**/*.md"
-    - "!**/package-lock.json"
+    enabled: true        # 자동 리뷰 활성화
+    drafts: true         # Draft PR도 리뷰
+  level: comprehensive   # 포괄적 리뷰
+  path_filters:
+    - "!**/*.md"                # 문서 리뷰 제외
+    - "!**/package-lock.json"   # 잠금 파일 제외
     - "!**/yarn.lock"
   focus:
-    - correctness
-    - performance
-    - security
-    - maintainability
-    - best_practices
+    - correctness       # 정확성
+    - performance       # 성능
+    - security          # 보안
+    - maintainability   # 유지보수성
+    - best_practices    # 모범 사례
 
 chat:
   enabled: true
@@ -34,15 +34,17 @@ labels:
   enabled: true
 
 reviewers:
-  auto_request: true   # 자동으로 리뷰어 요청
+  auto_request: true   # 자동 리뷰어 요청
 
 custom_prompts:
   - name: "보안 체크"
     prompt: "보안 취약점이 있는지 특히 주의깊게 검토해주세요"
   - name: "성능 체크"
     prompt: "성능 이슈가 있는지 확인해주세요"
+  - name: "한국어 고정"
+    prompt: "모든 리뷰, 코멘트, 요약, 설명은 반드시 한국어로만 작성해주세요. 영어 대신 한국어를 항상 사용해주세요."
 
 knowledge_base:
-  - "TypeScript와 React 모범 사례를 따르세요"
-  - "테스트 코드 작성을 권장합니다"
+  - "스프링 표준을 준수하세요"
   - "명확한 변수명과 함수명을 사용하세요"
+  - "PR 전체 흐름을 고려하여 수정 제안은 한국어로 구체적으로 설명하세요"
