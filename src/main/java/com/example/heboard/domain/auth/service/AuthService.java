@@ -43,4 +43,13 @@ public class AuthService {
 
         return new LoginResponse(tokenInfo, userInfo);
     }
+
+    /**
+     * 로그아웃 - Refresh Token 무효화
+     */
+    @Transactional
+    public void logout(Long userId) {
+        jwtTokenProvider.invalidateRefreshToken(userId);
+        log.info("로그아웃 성공: userId={}", userId);
+    }
 }
