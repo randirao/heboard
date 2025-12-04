@@ -37,11 +37,16 @@ public class JwtTokenProvider {
     }
 
     public Long getUserId(String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-        return Long.parseLong(claims.getSubject());
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return Long.parseLong(claims.getSubject());
+        } catch (NumberFormatException e) {
+            log.error("JWT subject is not a valid user ID: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid user ID in token", e);
+        }
     }
 }
