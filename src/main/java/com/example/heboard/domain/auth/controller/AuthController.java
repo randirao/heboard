@@ -39,4 +39,11 @@ public class AuthController {
         LoginResponse response = authService.login(request);
         return ApiResponse.success("로그인 성공", response);
     }
+
+    @Operation(summary = "로그아웃", description = "Refresh Token을 무효화하여 로그아웃합니다")
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestHeader("User-Id") Long userId) {
+        authService.logout(userId);
+        return ApiResponse.success("로그아웃 성공", null);
+    }
 }
