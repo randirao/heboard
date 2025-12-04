@@ -3,6 +3,7 @@ package com.example.heboard.global.exception;
 import com.example.heboard.global.common.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,7 +20,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiResponse<Void> handleDuplicateEmailException(DuplicateEmailException e) {
-        log.warn("DuplicateEmailException: {}", e.getMessage());
+        log.warn("이메일 중복");
+        return ApiResponse.error(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateNicknameException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiResponse<Void> handleDuplicateNicknameException(DuplicateNicknameException e) {
+        log.warn("닉네임 중복");
         return ApiResponse.error(e.getMessage());
     }
 
@@ -28,6 +36,14 @@ public class GlobalExceptionHandler {
     public ApiResponse<Void> handleResourceNotFoundException(ResourceNotFoundException e) {
         log.warn("ResourceNotFoundException: {}", e.getMessage());
         return ApiResponse.error(e.getMessage());
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException e) {
+        log.warn("인증 실패");
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.error(e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -39,14 +55,14 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-        log.warn("Validation error: {}", errors);
+        log.warn("유효성 검증 실패: {}", errors);
         return new ApiResponse<>(false, "입력값 검증 실패", errors);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleException(Exception e) {
-        log.error("Unexpected error occurred", e);
+        log.error("예상치 못한 오류 발생", e);
         return ApiResponse.error("서버 오류가 발생했습니다");
     }
 }
