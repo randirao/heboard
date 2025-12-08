@@ -1,6 +1,7 @@
 package com.example.heboard.domain.article.controller;
 
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
+import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
@@ -22,6 +23,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -181,6 +183,61 @@ public class ArticleController {
                 principal.getNickname()
         );
 
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 게시글 삭제
+     */
+    @Operation(summary = "게시글 삭제", description = "작성자 본인만 게시글을 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 삭제 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ArticleDeleteResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "message": "게시글이 성공적으로 삭제되었습니다.",
+                                      "articleId": 7
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "UNAUTHORIZED",
+                                      "message": "로그인이 필요합니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "403", description = "작성자 불일치",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "FORBIDDEN",
+                                      "message": "작성자만 게시글을 삭제할 수 있습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "게시글 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "ARTICLE_NOT_FOUND",
+                                      "message": "존재하지 않는 게시글입니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "DB_ERROR",
+                                      "message": "게시글 삭제 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ArticleDeleteResponse> deleteArticle(@PathVariable("id") Long articleId) {
+        JwtUserPrincipal principal = getPrincipal();
+        articleService.deleteArticle(articleId, principal.getUserId());
+        ArticleDeleteResponse response = new ArticleDeleteResponse("게시글이 성공적으로 삭제되었습니다.", articleId);
         return ResponseEntity.ok(response);
     }
 

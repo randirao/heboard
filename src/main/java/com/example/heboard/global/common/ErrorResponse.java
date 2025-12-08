@@ -10,10 +10,10 @@ import lombok.Getter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
-    @Schema(description = "에러 코드", example = "INVALID_REQUEST")
+    @Schema(description = "에러 코드", example = "CONFLICT")
     private final String error;
 
-    @Schema(description = "에러 메시지", example = "에러 메시지")
+    @Schema(description = "에러 메시지", example = "요청이 충돌했습니다.")
     private final String message;
 
     public static ErrorResponse of(String message) {

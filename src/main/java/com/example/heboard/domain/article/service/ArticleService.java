@@ -26,4 +26,12 @@ public interface ArticleService {
      * @return 수정된 게시글 응답
      */
     ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, Long writerId, String writerName);
+
+    /**
+     * 게시글 삭제
+     *
+     * @param articleId   삭제할 게시글 ID
+     * @param requesterId 요청자 ID
+     */
+    void deleteArticle(Long articleId, Long requesterId);
 }

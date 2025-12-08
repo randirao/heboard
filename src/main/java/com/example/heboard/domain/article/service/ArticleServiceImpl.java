@@ -5,6 +5,8 @@ import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.entity.Article;
 import com.example.heboard.domain.article.exception.ArticleNotFoundException;
+import com.example.heboard.domain.article.exception.DeleteDatabaseException;
+import com.example.heboard.domain.article.exception.DeleteForbiddenException;
 import com.example.heboard.domain.article.exception.DatabaseException;
 import com.example.heboard.domain.article.exception.ForbiddenException;
 import com.example.heboard.domain.article.repository.ArticleRepository;
@@ -66,6 +68,28 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (DataAccessException e) {
             log.error("게시글 수정 실패", e);
             throw new DatabaseException(e);
+        }
+    }
+
+    /**
+     * 게시글을 삭제한다.
+     */
+    @Transactional
+    @Override
+    public void deleteArticle(Long articleId, Long requesterId) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+
+        if (!article.getWriterId().equals(requesterId)) {
+            throw new DeleteForbiddenException();
+        }
+
+        try {
+            articleRepository.delete(article);
+            log.info("게시글 삭제 성공: id={}, requesterId={}", articleId, requesterId);
+        } catch (DataAccessException e) {
+            log.error("게시글 삭제 실패", e);
+            throw new DeleteDatabaseException(e);
         }
     }
 }

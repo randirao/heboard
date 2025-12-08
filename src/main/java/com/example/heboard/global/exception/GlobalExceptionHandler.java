@@ -1,12 +1,14 @@
 package com.example.heboard.global.exception;
 
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
+import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.global.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -22,9 +24,9 @@ public class GlobalExceptionHandler {
         HttpStatus status = switch (errorCode) {
             case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
             case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
-            case DB_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case DB_ERROR, DB_ERROR_DELETE -> HttpStatus.INTERNAL_SERVER_ERROR;
             case ARTICLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case FORBIDDEN -> HttpStatus.FORBIDDEN;
+            case FORBIDDEN, FORBIDDEN_DELETE -> HttpStatus.FORBIDDEN;
         };
         log.warn("게시글 예외 발생: {}", errorCode.getMessage());
         return ResponseEntity
@@ -36,14 +38,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateEmailException(DuplicateEmailException e) {
         log.warn("이메일 중복");
-        return ErrorResponse.of(e.getMessage());
+        return ErrorResponse.of("CONFLICT", "이미 사용 중인 이메일입니다.");
     }
 
     @ExceptionHandler(DuplicateNicknameException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateNicknameException(DuplicateNicknameException e) {
         log.warn("닉네임 중복");
-        return ErrorResponse.of(e.getMessage());
+        return ErrorResponse.of("CONFLICT", "이미 사용 중인 닉네임입니다.");
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -91,7 +93,7 @@ public class GlobalExceptionHandler {
             return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
                     ArticleErrorCode.INVALID_REQUEST.getMessage());
         }
-        if (e.getBindingResult().getTarget() instanceof com.example.heboard.domain.article.dto.ArticleUpdateRequest) {
+        if (e.getBindingResult().getTarget() instanceof ArticleUpdateRequest) {
             log.warn("게시글 수정 요청 검증 실패");
             return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
                     "제목과 내용을 올바르게 입력해주세요.");
@@ -103,6 +105,13 @@ public class GlobalExceptionHandler {
                 .orElse("입력값 검증 실패");
         log.warn("유효성 검증 실패: {}", message);
         return ErrorResponse.of(message);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        log.warn("데이터 무결성 충돌: {}", e.getMessage());
+        return ErrorResponse.of("CONFLICT", "데이터가 충돌했습니다.");
     }
 
     @ExceptionHandler(Exception.class)
