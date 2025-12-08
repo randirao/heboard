@@ -3,7 +3,8 @@ package com.example.heboard.global.jwt;
 import com.example.heboard.domain.auth.entity.RefreshToken;
 import com.example.heboard.domain.auth.repository.RefreshTokenRepository;
 import com.example.heboard.domain.user.entity.User;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -147,5 +148,42 @@ public class JwtTokenProvider {
         }
 
         return true;
+    }
+
+    /**
+     * JWT 토큰 유효성 검증
+     * - 토큰 서명, 만료 시간 등을 확인
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.error("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.error("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.error("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.error("JWT 토큰이 잘못되었습니다.");
+        }
+        return false;
+    }
+
+    /**
+     * JWT 토큰에서 User ID 추출
+     */
+    public Long getUserId(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return Long.parseLong(claims.getSubject());
+        } catch (NumberFormatException e) {
+            log.error("JWT subject is not a valid user ID: {}", e.getMessage());
+            throw new IllegalArgumentException("Invalid user ID in token", e);
+        }
     }
 }

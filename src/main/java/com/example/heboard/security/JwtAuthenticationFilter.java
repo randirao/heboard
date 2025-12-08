@@ -1,5 +1,6 @@
 package com.example.heboard.security;
 
+import com.example.heboard.global.jwt.JwtTokenProvider;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
