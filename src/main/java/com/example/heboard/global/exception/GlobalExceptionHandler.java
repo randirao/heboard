@@ -4,6 +4,9 @@ import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
+import com.example.heboard.domain.comment.dto.CommentCreateRequest;
+import com.example.heboard.domain.comment.exception.CommentErrorCode;
+import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.global.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,6 +35,19 @@ public class GlobalExceptionHandler {
             case FORBIDDEN, FORBIDDEN_DELETE -> HttpStatus.FORBIDDEN;
         };
         log.warn("게시글 예외 발생: {}", errorCode.getMessage());
+        return ResponseEntity
+                .status(status)
+                .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
+    }
+
+    @ExceptionHandler(CommentException.class)
+    public ResponseEntity<ErrorResponse> handleCommentException(CommentException e) {
+        CommentErrorCode errorCode = e.getErrorCode();
+        HttpStatus status = switch (errorCode) {
+            case INVALID_ARTICLE_ID, INVALID_COMMENT_CONTENT -> HttpStatus.BAD_REQUEST;
+            case COMMENT_DB_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+        log.warn("댓글 예외 발생: {}", errorCode.getMessage());
         return ResponseEntity
                 .status(status)
                 .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
@@ -100,6 +116,20 @@ public class GlobalExceptionHandler {
             log.warn("게시글 수정 요청 검증 실패");
             return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
                     "제목과 내용을 올바르게 입력해주세요.");
+        }
+        if (e.getBindingResult().getTarget() instanceof CommentCreateRequest) {
+            String message = e.getBindingResult().getFieldErrors().stream()
+                    .map(fieldError -> fieldError.getField())
+                    .findFirst()
+                    .orElse("");
+            if ("articleId".equals(message)) {
+                log.warn("댓글 생성 articleId 검증 실패");
+                return ErrorResponse.of(CommentErrorCode.INVALID_ARTICLE_ID.getCode(),
+                        CommentErrorCode.INVALID_ARTICLE_ID.getMessage());
+            }
+            log.warn("댓글 생성 content 검증 실패");
+            return ErrorResponse.of(CommentErrorCode.INVALID_COMMENT_CONTENT.getCode(),
+                    CommentErrorCode.INVALID_COMMENT_CONTENT.getMessage());
         }
 
         String message = e.getBindingResult().getFieldErrors().stream()

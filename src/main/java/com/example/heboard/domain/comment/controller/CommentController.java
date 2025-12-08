@@ -1,0 +1,109 @@
+package com.example.heboard.domain.comment.controller;
+
+import com.example.heboard.domain.comment.dto.CommentCreateRequest;
+import com.example.heboard.domain.comment.dto.CommentResponse;
+import com.example.heboard.domain.comment.exception.CommentErrorCode;
+import com.example.heboard.domain.comment.exception.CommentException;
+import com.example.heboard.domain.comment.service.CommentService;
+import com.example.heboard.domain.article.exception.ArticleErrorCode;
+import com.example.heboard.domain.article.exception.ArticleException;
+import com.example.heboard.security.JwtUserPrincipal;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/comments")
+@RequiredArgsConstructor
+public class CommentController {
+
+    private final CommentService commentService;
+
+    /**
+     * 댓글 작성
+     */
+    @Operation(summary = "댓글 작성", description = "게시글에 댓글을 작성합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "댓글 작성 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommentResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "id": 20,
+                                      "articleId": 1,
+                                      "content": "댓글 내용입니다.",
+                                      "writer": {
+                                        "id": 3,
+                                        "name": "홍길동"
+                                      },
+                                      "createdAt": "2025-12-02T13:22:10",
+                                      "updatedAt": "2025-12-02T13:22:10"
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "INVALID_COMMENT_CONTENT",
+                                      "message": "댓글 내용은 비어 있을 수 없습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "UNAUTHORIZED",
+                                      "message": "로그인이 필요합니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "게시글 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "ARTICLE_NOT_FOUND",
+                                      "message": "존재하지 않는 게시글입니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "DB_ERROR",
+                                      "message": "댓글 저장 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @PostMapping
+    public ResponseEntity<CommentResponse> createComment(@Valid @RequestBody CommentCreateRequest request) {
+        JwtUserPrincipal principal = getPrincipal();
+        CommentResponse response = commentService.createComment(principal.getUserId(), principal.getNickname(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    private JwtUserPrincipal getPrincipal() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ArticleException(ArticleErrorCode.UNAUTHORIZED);
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof JwtUserPrincipal jwtUserPrincipal
+                && StringUtils.hasText(jwtUserPrincipal.getNickname())) {
+            return jwtUserPrincipal;
+        }
+        throw new ArticleException(ArticleErrorCode.INVALID_TOKEN);
+    }
+}
