@@ -11,6 +11,8 @@ public enum ArticleErrorCode {
     INVALID_REQUEST("INVALID_REQUEST", "제목과 내용을 모두 입력해주세요."),
     INVALID_SIZE("INVALID_SIZE", "size는 1에서 50 사이여야 합니다."),
     INVALID_LAST_ID("INVALID_LAST_ID", "lastId는 양의 정수여야 합니다."),
+    INVALID_SEARCH_TYPE("INVALID_SEARCH_TYPE", "searchType 파라미터는 title, content, author 만 사용할 수 있습니다."),
+    INVALID_KEYWORD("INVALID_KEYWORD", "keyword 파라미터는 비어 있을 수 없습니다."),
     DB_ERROR("DB_ERROR", "게시글 저장 중 문제가 발생했습니다."),
     DB_ERROR_READ("DB_ERROR", "게시글 조회 중 문제가 발생했습니다."),
     ARTICLE_NOT_FOUND("ARTICLE_NOT_FOUND", "존재하지 않는 게시글입니다."),

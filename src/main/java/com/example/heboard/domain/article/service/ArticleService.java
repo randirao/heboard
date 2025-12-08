@@ -52,5 +52,5 @@ public interface ArticleService {
      * @param size   조회할 개수
      * @return 커서 페이지 응답
      */
-    CursorPageResponse getArticles(Long lastId, int size);
+    CursorPageResponse getArticles(Long lastId, int size, java.util.List<String> searchTypes, String keyword);
 }

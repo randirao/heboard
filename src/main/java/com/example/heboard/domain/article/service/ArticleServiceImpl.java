@@ -125,7 +125,7 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Transactional(readOnly = true)
     @Override
-    public CursorPageResponse getArticles(Long lastId, int size) {
+    public CursorPageResponse getArticles(Long lastId, int size, List<String> searchTypes, String keyword) {
         // size 검증
         if (size < 1 || size > 50) {
             throw new ArticleException(ArticleErrorCode.INVALID_SIZE);
@@ -136,9 +136,49 @@ public class ArticleServiceImpl implements ArticleService {
             throw new ArticleException(ArticleErrorCode.INVALID_LAST_ID);
         }
 
+        // 검색 파라미터 검증 및 정규화
+        boolean hasSearch = keyword != null && !keyword.trim().isEmpty();
+        boolean hasSearchType = searchTypes != null && !searchTypes.isEmpty();
+
+        if (hasSearch || hasSearchType) {
+            // 둘 중 하나만 있는 경우 에러 처리
+            if (!hasSearchType) {
+                throw new ArticleException(ArticleErrorCode.INVALID_SEARCH_TYPE);
+            }
+            if (!hasSearch) {
+                throw new ArticleException(ArticleErrorCode.INVALID_KEYWORD);
+            }
+        }
+
+        // lower-case 타입 목록으로 정규화
+        List<String> normalizedTypes = searchTypes == null ? List.of() :
+                searchTypes.stream().map(String::toLowerCase).toList();
+
+        boolean searchTitle = normalizedTypes.contains("title");
+        boolean searchContent = normalizedTypes.contains("content");
+        boolean searchAuthor = normalizedTypes.contains("author");
+
+        // 검색 타입에 잘못된 값이 섞여 있다면 에러
+        if (hasSearchType && !(searchTitle || searchContent || searchAuthor)) {
+            throw new ArticleException(ArticleErrorCode.INVALID_SEARCH_TYPE);
+        }
+
         try {
             PageRequest pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
-            List<Article> articles = articleRepository.findArticlesWithCursor(lastId, pageable);
+            List<Article> articles;
+
+            if (hasSearch && hasSearchType) {
+                articles = articleRepository.findArticlesWithCursorAndSearch(
+                        lastId,
+                        pageable,
+                        "%" + keyword.trim() + "%",
+                        searchTitle,
+                        searchContent,
+                        searchAuthor
+                );
+            } else {
+                articles = articleRepository.findArticlesWithCursor(lastId, pageable);
+            }
 
             List<ArticlePreviewResponse> previews = articles.stream()
                     .map(ArticlePreviewResponse::from)

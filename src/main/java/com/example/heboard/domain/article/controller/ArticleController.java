@@ -340,9 +340,13 @@ public class ArticleController {
     @GetMapping
     public ResponseEntity<CursorPageResponse> getArticles(
             @RequestParam(value = "lastId", required = false) Long lastId,
-            @RequestParam(value = "size", defaultValue = "10") int size
+            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "searchType", required = false) String searchType,
+            @RequestParam(value = "keyword", required = false) String keyword
     ) {
-        CursorPageResponse response = articleService.getArticles(lastId, size);
+        // searchType이 없으면 기존 목록 조회, searchType/keyword 둘 중 하나라도 있으면 모두 검증
+        java.util.List<String> searchTypes = parseSearchTypes(searchType, keyword);
+        CursorPageResponse response = articleService.getArticles(lastId, size, searchTypes, keyword);
         return ResponseEntity.ok(response);
     }
 
@@ -357,5 +361,40 @@ public class ArticleController {
             return jwtUserPrincipal;
         }
         throw new ArticleException(ArticleErrorCode.INVALID_TOKEN);
+    }
+
+    /**
+     * searchType 문자열을 검증/파싱하여 리스트로 반환한다.
+     * - 검색 파라미터가 모두 없으면 빈 리스트를 반환해 기본 목록 조회로 처리한다.
+     * - searchType은 콤마 구분, 지원 값(title/content/author)만 허용.
+     */
+    private java.util.List<String> parseSearchTypes(String searchType, String keyword) {
+        boolean hasSearchParams = (searchType != null && !searchType.isBlank()) ||
+                (keyword != null && !keyword.isBlank());
+
+        if (!hasSearchParams) {
+            return java.util.List.of(); // 검색 파라미터가 없으면 기본 목록 조회
+        }
+
+        if (keyword == null || keyword.isBlank()) {
+            throw new ArticleException(ArticleErrorCode.INVALID_KEYWORD);
+        }
+
+        if (searchType == null || searchType.isBlank()) {
+            throw new ArticleException(ArticleErrorCode.INVALID_SEARCH_TYPE);
+        }
+
+        java.util.Set<String> allowed = java.util.Set.of("title", "content", "author");
+        java.util.List<String> types = java.util.Arrays.stream(searchType.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .map(String::toLowerCase)
+                .toList();
+
+        if (types.isEmpty() || !allowed.containsAll(types)) {
+            throw new ArticleException(ArticleErrorCode.INVALID_SEARCH_TYPE);
+        }
+
+        return types;
     }
 }
