@@ -164,14 +164,13 @@ public class CommentController {
                                     }
                                     """)))
     })
-    @PatchMapping("/articles/{articleId}/comments/{commentId}")
+    @PatchMapping("/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @PathVariable("articleId") Long articleId,
             @PathVariable("commentId") Long commentId,
             @Valid @RequestBody CommentUpdateRequest request
     ) {
         JwtUserPrincipal principal = getPrincipal();
-        CommentResponse response = commentService.updateComment(articleId, commentId, principal.getUserId(), request);
+        CommentResponse response = commentService.updateComment(commentId, principal.getUserId(), request);
         return ResponseEntity.ok(response);
     }
 

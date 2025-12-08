@@ -20,13 +20,12 @@ public interface CommentService {
     /**
      * 댓글을 수정한다.
      *
-     * @param articleId  게시글 ID
      * @param commentId  댓글 ID
      * @param userId     요청자 ID
      * @param request    수정 요청
      * @return 수정된 댓글 응답
      */
-    CommentResponse updateComment(Long articleId, Long commentId, Long userId, CommentUpdateRequest request);
+    CommentResponse updateComment(Long commentId, Long userId, CommentUpdateRequest request);
 
     /**
      * 댓글을 삭제한다.

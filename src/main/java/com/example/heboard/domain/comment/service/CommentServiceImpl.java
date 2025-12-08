@@ -61,8 +61,8 @@ public class CommentServiceImpl implements CommentService {
      */
     @Transactional
     @Override
-    public CommentResponse updateComment(Long articleId, Long commentId, Long userId, CommentUpdateRequest request) {
-        Comment comment = commentRepository.findByIdAndArticleId(commentId, articleId)
+    public CommentResponse updateComment(Long commentId, Long userId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(CommentNotFoundException::new);
 
         if (!comment.getWriterId().equals(userId)) {
@@ -73,7 +73,7 @@ public class CommentServiceImpl implements CommentService {
 
         try {
             Comment saved = commentRepository.save(comment);
-            log.info("댓글 수정 성공: id={}, articleId={}, writerId={}", saved.getId(), articleId, userId);
+            log.info("댓글 수정 성공: id={}, writerId={}", saved.getId(), userId);
             return CommentResponse.from(saved);
         } catch (DataAccessException e) {
             log.error("댓글 수정 실패", e);
