@@ -5,8 +5,11 @@ import com.example.heboard.domain.article.exception.ArticleNotFoundException;
 import com.example.heboard.domain.article.repository.ArticleRepository;
 import com.example.heboard.domain.comment.dto.CommentCreateRequest;
 import com.example.heboard.domain.comment.dto.CommentResponse;
+import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
 import com.example.heboard.domain.comment.entity.Comment;
 import com.example.heboard.domain.comment.exception.CommentDatabaseException;
+import com.example.heboard.domain.comment.exception.CommentForbiddenException;
+import com.example.heboard.domain.comment.exception.CommentNotFoundException;
 import com.example.heboard.domain.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +47,31 @@ public class CommentServiceImpl implements CommentService {
             return CommentResponse.from(saved);
         } catch (DataAccessException e) {
             log.error("댓글 저장 실패", e);
+            throw new CommentDatabaseException(e);
+        }
+    }
+
+    /**
+     * 댓글을 수정한다.
+     */
+    @Transactional
+    @Override
+    public CommentResponse updateComment(Long articleId, Long commentId, Long userId, CommentUpdateRequest request) {
+        Comment comment = commentRepository.findByIdAndArticleId(commentId, articleId)
+                .orElseThrow(CommentNotFoundException::new);
+
+        if (!comment.getWriterId().equals(userId)) {
+            throw new CommentForbiddenException();
+        }
+
+        comment.updateContent(request.getContent());
+
+        try {
+            Comment saved = commentRepository.save(comment);
+            log.info("댓글 수정 성공: id={}, articleId={}, writerId={}", saved.getId(), articleId, userId);
+            return CommentResponse.from(saved);
+        } catch (DataAccessException e) {
+            log.error("댓글 수정 실패", e);
             throw new CommentDatabaseException(e);
         }
     }

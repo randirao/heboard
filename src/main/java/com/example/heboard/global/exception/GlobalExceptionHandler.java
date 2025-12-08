@@ -5,6 +5,7 @@ import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.domain.comment.dto.CommentCreateRequest;
+import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
 import com.example.heboard.domain.comment.exception.CommentErrorCode;
 import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.global.common.ErrorResponse;
@@ -44,8 +45,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleCommentException(CommentException e) {
         CommentErrorCode errorCode = e.getErrorCode();
         HttpStatus status = switch (errorCode) {
-            case INVALID_ARTICLE_ID, INVALID_COMMENT_CONTENT -> HttpStatus.BAD_REQUEST;
+            case INVALID_ARTICLE_ID, INVALID_COMMENT_CONTENT, INVALID_CONTENT -> HttpStatus.BAD_REQUEST;
             case COMMENT_DB_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case COMMENT_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case COMMENT_FORBIDDEN -> HttpStatus.FORBIDDEN;
         };
         log.warn("댓글 예외 발생: {}", errorCode.getMessage());
         return ResponseEntity
@@ -130,6 +133,11 @@ public class GlobalExceptionHandler {
             log.warn("댓글 생성 content 검증 실패");
             return ErrorResponse.of(CommentErrorCode.INVALID_COMMENT_CONTENT.getCode(),
                     CommentErrorCode.INVALID_COMMENT_CONTENT.getMessage());
+        }
+        if (e.getBindingResult().getTarget() instanceof CommentUpdateRequest) {
+            log.warn("댓글 수정 content 검증 실패");
+            return ErrorResponse.of(CommentErrorCode.INVALID_CONTENT.getCode(),
+                    CommentErrorCode.INVALID_CONTENT.getMessage());
         }
 
         String message = e.getBindingResult().getFieldErrors().stream()

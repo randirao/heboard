@@ -48,4 +48,12 @@ public class Comment {
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * 댓글 내용을 수정하고 수정 시간을 갱신한다.
+     */
+    public void updateContent(String content) {
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
 }

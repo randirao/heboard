@@ -4,4 +4,9 @@ import com.example.heboard.domain.comment.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CommentRepository extends JpaRepository<Comment, Long> {
+
+    /**
+     * 게시글과 댓글 ID로 댓글을 조회한다.
+     */
+    java.util.Optional<Comment> findByIdAndArticleId(Long commentId, Long articleId);
 }
