@@ -38,5 +38,6 @@ out/
 
 ### Environment Variables ###
 .env
+.env.example
 application-local.properties
 application-prod.properties
