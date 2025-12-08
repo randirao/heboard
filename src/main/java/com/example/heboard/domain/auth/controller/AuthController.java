@@ -40,9 +40,27 @@ public class AuthController {
         return ApiResponse.success("로그인 성공", response);
     }
 
+    /**
+     * 로그아웃 API 엔드포인트
+     *
+     * 흐름:
+     * 1. 요청 헤더에서 User-Id를 추출 (인증 필터에서 JWT 검증 후 설정)
+     * 2. AuthService를 호출하여 로그아웃 처리
+     * 3. DB에 저장된 Refresh Token을 삭제하여 무효화
+     * 4. 성공 응답 반환
+     *
+     * 예외 상황:
+     * - User-Id 헤더가 없는 경우: 400 Bad Request
+     * - 유효하지 않은 User ID: 404 Not Found (UserNotFoundException)
+     * - 이미 로그아웃된 경우: 정상 처리 (중복 로그아웃 허용)
+     *
+     * @param userId 로그아웃할 사용자 ID (헤더에서 전달)
+     * @return 로그아웃 성공 응답
+     */
     @Operation(summary = "로그아웃", description = "Refresh Token을 무효화하여 로그아웃합니다")
     @PostMapping("/logout")
     public ApiResponse<Void> logout(@RequestHeader("User-Id") Long userId) {
+        // 로그아웃 서비스 호출
         authService.logout(userId);
         return ApiResponse.success("로그아웃 성공", null);
     }
