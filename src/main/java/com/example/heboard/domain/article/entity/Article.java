@@ -35,6 +35,12 @@ public class Article {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private Long viewCount = 0L;
+
+    @Column(nullable = false)
+    private Long commentCount = 0L;
+
     @PrePersist
     private void onCreate() {
         LocalDateTime now = LocalDateTime.now();

@@ -4,6 +4,7 @@ import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.entity.Article;
+import com.example.heboard.domain.article.exception.ArticleReadDatabaseException;
 import com.example.heboard.domain.article.exception.ArticleNotFoundException;
 import com.example.heboard.domain.article.exception.DeleteDatabaseException;
 import com.example.heboard.domain.article.exception.DeleteForbiddenException;
@@ -90,6 +91,22 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (DataAccessException e) {
             log.error("게시글 삭제 실패", e);
             throw new DeleteDatabaseException(e);
+        }
+    }
+
+    /**
+     * 게시글을 단건 조회한다.
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public ArticleResponse getArticleById(Long articleId) {
+        try {
+            Article article = articleRepository.findById(articleId)
+                    .orElseThrow(ArticleNotFoundException::new);
+            return ArticleResponse.from(article);
+        } catch (DataAccessException e) {
+            log.error("게시글 조회 실패", e);
+            throw new ArticleReadDatabaseException(e);
         }
     }
 }

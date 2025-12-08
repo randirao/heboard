@@ -3,6 +3,7 @@ package com.example.heboard.domain.article.service;
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
+import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
 
 public interface ArticleService {
 
@@ -34,4 +35,12 @@ public interface ArticleService {
      * @param requesterId 요청자 ID
      */
     void deleteArticle(Long articleId, Long requesterId);
+
+    /**
+     * 게시글 상세 조회
+     *
+     * @param articleId 조회할 게시글 ID
+     * @return 게시글 응답 DTO
+     */
+    ArticleResponse getArticleById(Long articleId);
 }

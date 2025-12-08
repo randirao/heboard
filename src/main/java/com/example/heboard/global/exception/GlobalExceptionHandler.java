@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -25,6 +26,7 @@ public class GlobalExceptionHandler {
             case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
             case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
             case DB_ERROR, DB_ERROR_DELETE -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case DB_ERROR_READ -> HttpStatus.INTERNAL_SERVER_ERROR;
             case ARTICLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
             case FORBIDDEN, FORBIDDEN_DELETE -> HttpStatus.FORBIDDEN;
         };
@@ -112,6 +114,13 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleDataIntegrityViolation(DataIntegrityViolationException e) {
         log.warn("데이터 무결성 충돌: {}", e.getMessage());
         return ErrorResponse.of("CONFLICT", "데이터가 충돌했습니다.");
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        log.warn("잘못된 PathVariable 타입: {}", e.getMessage());
+        return ErrorResponse.of("INVALID_PATH_VARIABLE", "잘못된 게시글 ID 형식입니다.");
     }
 
     @ExceptionHandler(Exception.class)

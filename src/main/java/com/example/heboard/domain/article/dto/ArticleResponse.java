@@ -18,6 +18,8 @@ public class ArticleResponse {
     private String writerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Long viewCount;
+    private Long commentCount;
 
     public static ArticleResponse from(Article article) {
         return ArticleResponse.builder()
@@ -28,6 +30,8 @@ public class ArticleResponse {
                 .writerName(article.getWriterName())
                 .createdAt(article.getCreatedAt())
                 .updatedAt(article.getUpdatedAt())
+                .viewCount(article.getViewCount() == null ? 0L : article.getViewCount())
+                .commentCount(article.getCommentCount() == null ? 0L : article.getCommentCount())
                 .build();
     }
 }
