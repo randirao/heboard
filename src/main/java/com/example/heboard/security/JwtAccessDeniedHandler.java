@@ -20,7 +20,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
                        AccessDeniedException accessDeniedException) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        ErrorResponse body = ErrorResponse.of("접근 권한이 없습니다.");
+        ErrorResponse body = ErrorResponse.of("FORBIDDEN", "접근 권한이 없습니다.");
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

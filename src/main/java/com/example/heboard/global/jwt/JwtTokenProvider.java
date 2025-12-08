@@ -186,4 +186,16 @@ public class JwtTokenProvider {
             throw new IllegalArgumentException("Invalid user ID in token", e);
         }
     }
+
+    /**
+     * JWT 토큰에서 닉네임 추출
+     */
+    public String getNickname(String token) {
+        Claims claims = Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claims.get("nickname", String.class);
+    }
 }

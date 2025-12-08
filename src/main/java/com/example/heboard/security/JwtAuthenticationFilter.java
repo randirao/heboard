@@ -1,5 +1,6 @@
 package com.example.heboard.security;
 
+import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.global.common.ErrorResponse;
 import com.example.heboard.global.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -47,15 +48,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Long userId = jwtTokenProvider.getUserId(token);
                 if (userId != null) {
+                    String nickname = jwtTokenProvider.getNickname(token);
+                    JwtUserPrincipal principal = new JwtUserPrincipal(userId, nickname);
                     UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                        new UsernamePasswordAuthenticationToken(principal, null, Collections.emptyList());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         } catch (JwtException | IllegalArgumentException e) {
             log.debug("Failed to extract user from JWT: {}", e.getMessage());
             SecurityContextHolder.clearContext();
-            writeError(response, "유효하지 않은 토큰입니다.");
+            writeError(response, ArticleErrorCode.INVALID_TOKEN);
             return;
         }
 
@@ -70,10 +73,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void writeError(HttpServletResponse response, String message) throws IOException {
+    private void writeError(HttpServletResponse response, ArticleErrorCode errorCode) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        ErrorResponse body = ErrorResponse.of(message);
+        ErrorResponse body = ErrorResponse.of(errorCode.getCode(), errorCode.getMessage());
         response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

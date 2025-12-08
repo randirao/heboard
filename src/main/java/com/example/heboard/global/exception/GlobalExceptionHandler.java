@@ -1,5 +1,8 @@
 package com.example.heboard.global.exception;
 
+import com.example.heboard.domain.article.dto.ArticleCreateRequest;
+import com.example.heboard.domain.article.exception.ArticleErrorCode;
+import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.global.common.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,20 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(ArticleException.class)
+    public ResponseEntity<ErrorResponse> handleArticleException(ArticleException e) {
+        ArticleErrorCode errorCode = e.getErrorCode();
+        HttpStatus status = switch (errorCode) {
+            case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
+            case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
+            case DB_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+        log.warn("게시글 예외 발생: {}", errorCode.getMessage());
+        return ResponseEntity
+                .status(status)
+                .body(ErrorResponse.of(errorCode.getCode(), errorCode.getMessage()));
+    }
 
     @ExceptionHandler(DuplicateEmailException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
@@ -67,6 +84,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(MethodArgumentNotValidException e) {
+        if (e.getBindingResult().getTarget() instanceof ArticleCreateRequest) {
+            log.warn("게시글 생성 요청 검증 실패");
+            return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
+                    ArticleErrorCode.INVALID_REQUEST.getMessage());
+        }
+
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(fieldError -> fieldError.getField() + ": " + fieldError.getDefaultMessage())
                 .findFirst()
