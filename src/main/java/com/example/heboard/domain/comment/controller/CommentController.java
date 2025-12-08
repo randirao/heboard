@@ -3,6 +3,7 @@ package com.example.heboard.domain.comment.controller;
 import com.example.heboard.domain.comment.dto.CommentCreateRequest;
 import com.example.heboard.domain.comment.dto.CommentResponse;
 import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
+import com.example.heboard.domain.comment.dto.DeleteCommentResponse;
 import com.example.heboard.domain.comment.exception.CommentErrorCode;
 import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.domain.comment.service.CommentService;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 @RestController
 @RequestMapping("/api")
@@ -168,6 +170,64 @@ public class CommentController {
         JwtUserPrincipal principal = getPrincipal();
         CommentResponse response = commentService.updateComment(articleId, commentId, principal.getUserId(), request);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 댓글 삭제
+     */
+    @Operation(summary = "댓글 삭제", description = "댓글 작성자 본인만 삭제합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "댓글 삭제 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = DeleteCommentResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": true,
+                                      "message": "댓글이 성공적으로 삭제되었습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "UNAUTHORIZED",
+                                      "message": "로그인이 필요합니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "403", description = "작성자 불일치",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "FORBIDDEN",
+                                      "message": "이 댓글을 수정할 권한이 없습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "댓글 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "COMMENT_NOT_FOUND",
+                                      "message": "해당 댓글을 찾을 수 없습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "DB_ERROR",
+                                      "message": "댓글 처리 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @DeleteMapping("/comments/{id}")
+    public ResponseEntity<DeleteCommentResponse> deleteComment(@PathVariable("id") Long commentId) {
+        JwtUserPrincipal principal = getPrincipal();
+        commentService.deleteComment(commentId, principal.getUserId());
+        return ResponseEntity.ok(DeleteCommentResponse.ok());
     }
 
     private JwtUserPrincipal getPrincipal() {

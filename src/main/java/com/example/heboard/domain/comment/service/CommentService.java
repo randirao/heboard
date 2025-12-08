@@ -26,4 +26,12 @@ public interface CommentService {
      * @return 수정된 댓글 응답
      */
     CommentResponse updateComment(Long articleId, Long commentId, Long userId, CommentUpdateRequest request);
+
+    /**
+     * 댓글을 삭제한다.
+     *
+     * @param commentId 댓글 ID
+     * @param userId    요청자 ID
+     */
+    void deleteComment(Long commentId, Long userId);
 }

@@ -10,6 +10,9 @@ import lombok.Getter;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ErrorResponse {
 
+    @Schema(description = "성공 여부", example = "false")
+    private final boolean success;
+
     @Schema(description = "에러 코드", example = "CONFLICT")
     private final String error;
 
@@ -17,10 +20,10 @@ public class ErrorResponse {
     private final String message;
 
     public static ErrorResponse of(String message) {
-        return new ErrorResponse(null, message);
+        return new ErrorResponse(false, null, message);
     }
 
     public static ErrorResponse of(String error, String message) {
-        return new ErrorResponse(error, message);
+        return new ErrorResponse(false, error, message);
     }
 }

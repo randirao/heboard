@@ -75,4 +75,26 @@ public class CommentServiceImpl implements CommentService {
             throw new CommentDatabaseException(e);
         }
     }
+
+    /**
+     * 댓글을 삭제한다.
+     */
+    @Transactional
+    @Override
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(CommentNotFoundException::new);
+
+        if (!comment.getWriterId().equals(userId)) {
+            throw new CommentForbiddenException();
+        }
+
+        try {
+            commentRepository.delete(comment);
+            log.info("댓글 삭제 성공: id={}, writerId={}", commentId, userId);
+        } catch (DataAccessException e) {
+            log.error("댓글 삭제 실패", e);
+            throw new CommentDatabaseException(e);
+        }
+    }
 }
