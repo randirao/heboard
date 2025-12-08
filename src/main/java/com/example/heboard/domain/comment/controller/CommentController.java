@@ -4,6 +4,7 @@ import com.example.heboard.domain.comment.dto.CommentCreateRequest;
 import com.example.heboard.domain.comment.dto.CommentResponse;
 import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
 import com.example.heboard.domain.comment.dto.DeleteCommentResponse;
+import com.example.heboard.domain.comment.dto.CommentPageResponse;
 import com.example.heboard.domain.comment.exception.CommentErrorCode;
 import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.domain.comment.service.CommentService;
@@ -30,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api")
@@ -228,6 +231,61 @@ public class CommentController {
         JwtUserPrincipal principal = getPrincipal();
         commentService.deleteComment(commentId, principal.getUserId());
         return ResponseEntity.ok(DeleteCommentResponse.ok());
+    }
+
+    /**
+     * 게시글 댓글 목록 조회 (페이지 기반)
+     */
+    @Operation(summary = "게시글 댓글 목록 조회", description = "게시글 ID로 댓글을 페이지 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CommentPageResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "content": [
+                                        {
+                                          "id": 1,
+                                          "articleId": 10,
+                                          "content": "댓글 내용",
+                                          "writer": { "id": 3, "name": "홍길동" },
+                                          "createdAt": "2025-12-08T12:00:00",
+                                          "updatedAt": "2025-12-08T12:00:00"
+                                        }
+                                      ],
+                                      "page": 0,
+                                      "size": 10,
+                                      "totalElements": 1,
+                                      "totalPages": 1
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "게시글 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "ARTICLE_NOT_FOUND",
+                                      "message": "존재하지 않는 게시글입니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "success": false,
+                                      "error": "DB_ERROR",
+                                      "message": "댓글 처리 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @GetMapping("/articles/{articleId}/comments")
+    public ResponseEntity<CommentPageResponse> getComments(
+            @PathVariable("articleId") Long articleId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        CommentPageResponse response = commentService.getComments(articleId, page, size);
+        return ResponseEntity.ok(response);
     }
 
     private JwtUserPrincipal getPrincipal() {

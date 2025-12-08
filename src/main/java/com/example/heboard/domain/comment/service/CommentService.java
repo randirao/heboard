@@ -3,6 +3,7 @@ package com.example.heboard.domain.comment.service;
 import com.example.heboard.domain.comment.dto.CommentCreateRequest;
 import com.example.heboard.domain.comment.dto.CommentResponse;
 import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
+import com.example.heboard.domain.comment.dto.CommentPageResponse;
 
 public interface CommentService {
 
@@ -34,4 +35,14 @@ public interface CommentService {
      * @param userId    요청자 ID
      */
     void deleteComment(Long commentId, Long userId);
+
+    /**
+     * 게시글의 댓글을 페이지로 조회한다.
+     *
+     * @param articleId 게시글 ID
+     * @param page      페이지 번호(0-base)
+     * @param size      페이지 크기
+     * @return 페이지 응답
+     */
+    CommentPageResponse getComments(Long articleId, int page, int size);
 }

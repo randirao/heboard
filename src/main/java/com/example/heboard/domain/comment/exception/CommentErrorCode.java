@@ -11,7 +11,7 @@ public enum CommentErrorCode {
     INVALID_CONTENT("INVALID_CONTENT", "content는 비어 있을 수 없습니다."),
     COMMENT_DB_ERROR("DB_ERROR", "댓글 저장 중 문제가 발생했습니다."),
     COMMENT_NOT_FOUND("COMMENT_NOT_FOUND", "해당 댓글을 찾을 수 없습니다."),
-    COMMENT_FORBIDDEN("FORBIDDEN", "이 댓글을 수정할 권한이 없습니다.");
+    COMMENT_FORBIDDEN("FORBIDDEN", "이 댓글을 삭제할 권한이 없습니다.");
 
     private final String code;
     private final String message;
