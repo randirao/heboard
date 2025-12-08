@@ -2,9 +2,11 @@ package com.example.heboard.domain.article.service;
 
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleResponse;
+import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.entity.Article;
-import com.example.heboard.domain.article.exception.ArticleErrorCode;
-import com.example.heboard.domain.article.exception.ArticleException;
+import com.example.heboard.domain.article.exception.ArticleNotFoundException;
+import com.example.heboard.domain.article.exception.DatabaseException;
+import com.example.heboard.domain.article.exception.ForbiddenException;
 import com.example.heboard.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +40,32 @@ public class ArticleServiceImpl implements ArticleService {
             return ArticleResponse.from(saved);
         } catch (DataAccessException e) {
             log.error("게시글 저장 실패", e);
-            throw new ArticleException(ArticleErrorCode.DB_ERROR, e);
+            throw new DatabaseException(e);
+        }
+    }
+
+    /**
+     * 게시글을 수정한다.
+     */
+    @Transactional
+    @Override
+    public ArticleResponse updateArticle(Long articleId, ArticleUpdateRequest request, Long writerId, String writerName) {
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(ArticleNotFoundException::new);
+
+        if (!article.getWriterId().equals(writerId)) {
+            throw new ForbiddenException();
+        }
+
+        article.update(request.getTitle(), request.getContent());
+
+        try {
+            Article saved = articleRepository.save(article);
+            log.info("게시글 수정 성공: id={}, writerId={}", saved.getId(), writerId);
+            return ArticleResponse.from(saved);
+        } catch (DataAccessException e) {
+            log.error("게시글 수정 실패", e);
+            throw new DatabaseException(e);
         }
     }
 }

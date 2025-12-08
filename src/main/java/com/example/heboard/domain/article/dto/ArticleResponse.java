@@ -17,6 +17,7 @@ public class ArticleResponse {
     private Long writerId;
     private String writerName;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static ArticleResponse from(Article article) {
         return ArticleResponse.builder()
@@ -26,6 +27,7 @@ public class ArticleResponse {
                 .writerId(article.getWriterId())
                 .writerName(article.getWriterName())
                 .createdAt(article.getCreatedAt())
+                .updatedAt(article.getUpdatedAt())
                 .build();
     }
 }

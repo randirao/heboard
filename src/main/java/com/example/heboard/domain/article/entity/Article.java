@@ -46,4 +46,13 @@ public class Article {
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * 제목/내용을 수정하고 수정 시간을 갱신한다.
+     */
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+        this.updatedAt = LocalDateTime.now();
+    }
 }
