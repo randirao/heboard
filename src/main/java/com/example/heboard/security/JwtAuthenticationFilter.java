@@ -1,6 +1,8 @@
 package com.example.heboard.security;
 
+import com.example.heboard.global.common.ErrorResponse;
 import com.example.heboard.global.jwt.JwtTokenProvider;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,6 +23,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -52,6 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (JwtException | IllegalArgumentException e) {
             log.debug("Failed to extract user from JWT: {}", e.getMessage());
             SecurityContextHolder.clearContext();
+            writeError(response, "유효하지 않은 토큰입니다.");
+            return;
         }
 
         filterChain.doFilter(request, response);
@@ -63,5 +68,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return bearerToken.substring(7);
         }
         return null;
+    }
+
+    private void writeError(HttpServletResponse response, String message) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        ErrorResponse body = ErrorResponse.of(message);
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }

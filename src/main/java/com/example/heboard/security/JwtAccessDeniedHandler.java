@@ -1,5 +1,7 @@
 package com.example.heboard.security;
 
+import com.example.heboard.global.common.ErrorResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
@@ -11,11 +13,14 @@ import java.io.IOException;
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException {
         response.setContentType("application/json;charset=UTF-8");
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-        response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"접근 권한이 없습니다.\"}");
+        ErrorResponse body = ErrorResponse.of("접근 권한이 없습니다.");
+        response.getWriter().write(objectMapper.writeValueAsString(body));
     }
 }
