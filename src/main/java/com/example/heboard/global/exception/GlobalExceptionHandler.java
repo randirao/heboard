@@ -23,6 +23,8 @@ public class GlobalExceptionHandler {
             case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
             case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
             case DB_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            case ARTICLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
+            case FORBIDDEN -> HttpStatus.FORBIDDEN;
         };
         log.warn("게시글 예외 발생: {}", errorCode.getMessage());
         return ResponseEntity
@@ -88,6 +90,11 @@ public class GlobalExceptionHandler {
             log.warn("게시글 생성 요청 검증 실패");
             return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
                     ArticleErrorCode.INVALID_REQUEST.getMessage());
+        }
+        if (e.getBindingResult().getTarget() instanceof com.example.heboard.domain.article.dto.ArticleUpdateRequest) {
+            log.warn("게시글 수정 요청 검증 실패");
+            return ErrorResponse.of(ArticleErrorCode.INVALID_REQUEST.getCode(),
+                    "제목과 내용을 올바르게 입력해주세요.");
         }
 
         String message = e.getBindingResult().getFieldErrors().stream()

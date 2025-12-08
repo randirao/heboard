@@ -2,6 +2,7 @@ package com.example.heboard.domain.article.controller;
 
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleResponse;
+import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.domain.article.service.ArticleService;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -103,6 +106,82 @@ public class ArticleController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * 게시글 수정
+     */
+    @Operation(summary = "게시글 수정", description = "작성자 본인만 게시글을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "게시글 수정 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ArticleResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "articleId": 7,
+                                      "title": "수정된 제목",
+                                      "content": "수정된 내용",
+                                      "writerId": 3,
+                                      "writerName": "홍길동",
+                                      "updatedAt": "2025-12-08T14:22:33"
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "401", description = "인증 실패",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "UNAUTHORIZED",
+                                      "message": "로그인이 필요합니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "403", description = "작성자 불일치",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "FORBIDDEN",
+                                      "message": "작성자만 게시글을 수정할 수 있습니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "404", description = "게시글 없음",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "ARTICLE_NOT_FOUND",
+                                      "message": "존재하지 않는 게시글입니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "INVALID_REQUEST",
+                                      "message": "제목과 내용을 올바르게 입력해주세요."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "DB_ERROR",
+                                      "message": "게시글 수정 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @PatchMapping("/{id}")
+    public ResponseEntity<ArticleResponse> updateArticle(
+            @PathVariable("id") Long articleId,
+            @Valid @RequestBody ArticleUpdateRequest request
+    ) {
+        JwtUserPrincipal principal = getPrincipal();
+
+        ArticleResponse response = articleService.updateArticle(
+                articleId,
+                request,
+                principal.getUserId(),
+                principal.getNickname()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     private JwtUserPrincipal getPrincipal() {
