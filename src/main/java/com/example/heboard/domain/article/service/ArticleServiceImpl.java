@@ -1,9 +1,14 @@
 package com.example.heboard.domain.article.service;
 
 import com.example.heboard.domain.article.dto.ArticleCreateRequest;
+import com.example.heboard.domain.article.dto.ArticlePreviewResponse;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
+import com.example.heboard.domain.article.dto.CursorPageResponse;
 import com.example.heboard.domain.article.entity.Article;
+import com.example.heboard.domain.article.exception.ArticleErrorCode;
+import com.example.heboard.domain.article.exception.ArticleException;
+import com.example.heboard.domain.article.exception.ArticleListDatabaseException;
 import com.example.heboard.domain.article.exception.ArticleReadDatabaseException;
 import com.example.heboard.domain.article.exception.ArticleNotFoundException;
 import com.example.heboard.domain.article.exception.DeleteDatabaseException;
@@ -14,8 +19,13 @@ import com.example.heboard.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -107,6 +117,44 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (DataAccessException e) {
             log.error("게시글 조회 실패", e);
             throw new ArticleReadDatabaseException(e);
+        }
+    }
+
+    /**
+     * 커서 기반 게시글 목록 조회
+     */
+    @Transactional(readOnly = true)
+    @Override
+    public CursorPageResponse getArticles(Long lastId, int size) {
+        // size 검증
+        if (size < 1 || size > 50) {
+            throw new ArticleException(ArticleErrorCode.INVALID_SIZE);
+        }
+
+        // lastId 검증
+        if (lastId != null && lastId < 1) {
+            throw new ArticleException(ArticleErrorCode.INVALID_LAST_ID);
+        }
+
+        try {
+            PageRequest pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
+            List<Article> articles = articleRepository.findArticlesWithCursor(lastId, pageable);
+
+            List<ArticlePreviewResponse> previews = articles.stream()
+                    .map(ArticlePreviewResponse::from)
+                    .collect(Collectors.toList());
+
+            Long nextCursor = previews.isEmpty() ? null : previews.get(previews.size() - 1).getArticleId();
+            boolean hasNext = previews.size() == size;
+
+            return CursorPageResponse.builder()
+                    .articles(previews)
+                    .nextCursor(nextCursor)
+                    .hasNext(hasNext)
+                    .build();
+        } catch (DataAccessException e) {
+            log.error("게시글 목록 조회 실패", e);
+            throw new ArticleListDatabaseException(e);
         }
     }
 }

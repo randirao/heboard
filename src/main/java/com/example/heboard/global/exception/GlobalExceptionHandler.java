@@ -25,6 +25,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = switch (errorCode) {
             case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
             case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
+            case INVALID_SIZE, INVALID_LAST_ID -> HttpStatus.BAD_REQUEST;
             case DB_ERROR, DB_ERROR_DELETE -> HttpStatus.INTERNAL_SERVER_ERROR;
             case DB_ERROR_READ -> HttpStatus.INTERNAL_SERVER_ERROR;
             case ARTICLE_NOT_FOUND -> HttpStatus.NOT_FOUND;
@@ -120,6 +121,13 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         log.warn("잘못된 PathVariable 타입: {}", e.getMessage());
+        String name = e.getName();
+        if ("lastId".equals(name)) {
+            return ErrorResponse.of("INVALID_LAST_ID", "lastId는 양의 정수여야 합니다.");
+        }
+        if ("size".equals(name)) {
+            return ErrorResponse.of("INVALID_SIZE", "size는 1에서 50 사이여야 합니다.");
+        }
         return ErrorResponse.of("INVALID_PATH_VARIABLE", "잘못된 게시글 ID 형식입니다.");
     }
 

@@ -35,9 +35,11 @@ public class Article {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long viewCount = 0L;
 
+    @Builder.Default
     @Column(nullable = false)
     private Long commentCount = 0L;
 

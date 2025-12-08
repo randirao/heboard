@@ -4,6 +4,7 @@ import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
+import com.example.heboard.domain.article.dto.CursorPageResponse;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.domain.article.service.ArticleService;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Article", description = "게시글 API")
@@ -291,6 +293,56 @@ public class ArticleController {
     @GetMapping("/{id}")
     public ResponseEntity<ArticleResponse> getArticle(@PathVariable("id") Long articleId) {
         ArticleResponse response = articleService.getArticleById(articleId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 커서 기반 게시글 목록 조회
+     */
+    @Operation(summary = "게시글 목록 조회(커서 기반)", description = "lastId 기준 최신순으로 size만큼 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CursorPageResponse.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "articles": [
+                                        {
+                                          "articleId": 101,
+                                          "title": "게시글 제목",
+                                          "contentPreview": "내용 미리보기 50자...",
+                                          "writerId": 3,
+                                          "writerName": "홍길동",
+                                          "createdAt": "2025-12-08T12:34:56"
+                                        }
+                                      ],
+                                      "nextCursor": 98,
+                                      "hasNext": true
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "400", description = "잘못된 파라미터",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "INVALID_SIZE",
+                                      "message": "size는 1에서 50 사이여야 합니다."
+                                    }
+                                    """))),
+            @ApiResponse(responseCode = "500", description = "서버 오류",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "error": "DB_ERROR",
+                                      "message": "게시글 조회 중 문제가 발생했습니다."
+                                    }
+                                    """)))
+    })
+    @GetMapping
+    public ResponseEntity<CursorPageResponse> getArticles(
+            @RequestParam(value = "lastId", required = false) Long lastId,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        CursorPageResponse response = articleService.getArticles(lastId, size);
         return ResponseEntity.ok(response);
     }
 

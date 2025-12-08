@@ -4,6 +4,7 @@ import com.example.heboard.domain.article.dto.ArticleCreateRequest;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
+import com.example.heboard.domain.article.dto.CursorPageResponse;
 
 public interface ArticleService {
 
@@ -43,4 +44,13 @@ public interface ArticleService {
      * @return 게시글 응답 DTO
      */
     ArticleResponse getArticleById(Long articleId);
+
+    /**
+     * 커서 기반 게시글 목록 조회
+     *
+     * @param lastId 마지막으로 조회한 게시글 ID (null이면 최신부터)
+     * @param size   조회할 개수
+     * @return 커서 페이지 응답
+     */
+    CursorPageResponse getArticles(Long lastId, int size);
 }
