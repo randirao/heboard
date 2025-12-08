@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
         HttpStatus status = switch (errorCode) {
             case UNAUTHORIZED, INVALID_TOKEN -> HttpStatus.UNAUTHORIZED;
             case INVALID_REQUEST -> HttpStatus.BAD_REQUEST;
-            case INVALID_SIZE, INVALID_LAST_ID, INVALID_SEARCH_TYPE, INVALID_KEYWORD -> HttpStatus.BAD_REQUEST;
+            case INVALID_SIZE, INVALID_LAST_ID, INVALID_SEARCH_TYPE, INVALID_KEYWORD, INVALID_SORT_OPTION -> HttpStatus.BAD_REQUEST;
             case DB_ERROR, DB_ERROR_DELETE -> HttpStatus.INTERNAL_SERVER_ERROR;
             case DB_ERROR_READ -> HttpStatus.INTERNAL_SERVER_ERROR;
             case ARTICLE_NOT_FOUND -> HttpStatus.NOT_FOUND;

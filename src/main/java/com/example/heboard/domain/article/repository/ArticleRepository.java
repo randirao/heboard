@@ -16,9 +16,13 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
     @Query("""
         SELECT a FROM Article a
         WHERE (:lastId IS NULL OR a.id < :lastId)
-        ORDER BY a.id DESC
+        ORDER BY
+            CASE WHEN :sort = 'views' THEN a.viewCount END DESC,
+            CASE WHEN :sort = 'comments' THEN a.commentCount END DESC,
+            CASE WHEN :sort = 'latest' THEN a.createdAt END DESC,
+            a.id DESC
         """)
-    List<Article> findArticlesWithCursor(@Param("lastId") Long lastId, Pageable pageable);
+    List<Article> findArticlesWithCursor(@Param("lastId") Long lastId, Pageable pageable, @Param("sort") String sort);
 
     /**
      * 커서 + 검색 조합 조회
@@ -32,7 +36,11 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
               OR (:searchContent = true AND LOWER(a.content) LIKE LOWER(:keyword))
               OR (:searchAuthor = true AND LOWER(a.writerName) LIKE LOWER(:keyword))
           )
-        ORDER BY a.id DESC
+        ORDER BY
+            CASE WHEN :sort = 'views' THEN a.viewCount END DESC,
+            CASE WHEN :sort = 'comments' THEN a.commentCount END DESC,
+            CASE WHEN :sort = 'latest' THEN a.createdAt END DESC,
+            a.id DESC
         """)
     List<Article> findArticlesWithCursorAndSearch(
             @Param("lastId") Long lastId,
@@ -40,6 +48,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             @Param("keyword") String keyword,
             @Param("searchTitle") boolean searchTitle,
             @Param("searchContent") boolean searchContent,
-            @Param("searchAuthor") boolean searchAuthor
+            @Param("searchAuthor") boolean searchAuthor,
+            @Param("sort") String sort
     );
 }

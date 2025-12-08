@@ -15,6 +15,7 @@ import com.example.heboard.domain.article.exception.DeleteDatabaseException;
 import com.example.heboard.domain.article.exception.DeleteForbiddenException;
 import com.example.heboard.domain.article.exception.DatabaseException;
 import com.example.heboard.domain.article.exception.ForbiddenException;
+import com.example.heboard.domain.article.model.ArticleSortType;
 import com.example.heboard.domain.article.repository.ArticleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -125,7 +126,7 @@ public class ArticleServiceImpl implements ArticleService {
      */
     @Transactional(readOnly = true)
     @Override
-    public CursorPageResponse getArticles(Long lastId, int size, List<String> searchTypes, String keyword) {
+    public CursorPageResponse getArticles(Long lastId, int size, List<String> searchTypes, String keyword, ArticleSortType sortType) {
         // size 검증
         if (size < 1 || size > 50) {
             throw new ArticleException(ArticleErrorCode.INVALID_SIZE);
@@ -164,7 +165,7 @@ public class ArticleServiceImpl implements ArticleService {
         }
 
         try {
-            PageRequest pageable = PageRequest.of(0, size, Sort.by(Sort.Direction.DESC, "id"));
+            PageRequest pageable = PageRequest.of(0, size, resolveSort(sortType));
             List<Article> articles;
 
             if (hasSearch && hasSearchType) {
@@ -174,10 +175,11 @@ public class ArticleServiceImpl implements ArticleService {
                         "%" + keyword.trim() + "%",
                         searchTitle,
                         searchContent,
-                        searchAuthor
+                        searchAuthor,
+                        sortType.name().toLowerCase()
                 );
             } else {
-                articles = articleRepository.findArticlesWithCursor(lastId, pageable);
+                articles = articleRepository.findArticlesWithCursor(lastId, pageable, sortType.name().toLowerCase());
             }
 
             List<ArticlePreviewResponse> previews = articles.stream()
@@ -196,5 +198,16 @@ public class ArticleServiceImpl implements ArticleService {
             log.error("게시글 목록 조회 실패", e);
             throw new ArticleListDatabaseException(e);
         }
+    }
+
+    /**
+     * 정렬 옵션을 Sort 객체로 변환한다.
+     */
+    private Sort resolveSort(ArticleSortType sortType) {
+        return switch (sortType) {
+            case LATEST -> Sort.by(Sort.Direction.DESC, "createdAt").and(Sort.by(Sort.Direction.DESC, "id"));
+            case VIEWS -> Sort.by(Sort.Direction.DESC, "viewCount").and(Sort.by(Sort.Direction.DESC, "id"));
+            case COMMENTS -> Sort.by(Sort.Direction.DESC, "commentCount").and(Sort.by(Sort.Direction.DESC, "id"));
+        };
     }
 }

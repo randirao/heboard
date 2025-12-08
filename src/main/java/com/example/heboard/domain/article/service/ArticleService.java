@@ -5,6 +5,7 @@ import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
 import com.example.heboard.domain.article.dto.CursorPageResponse;
+import com.example.heboard.domain.article.model.ArticleSortType;
 
 public interface ArticleService {
 
@@ -52,5 +53,5 @@ public interface ArticleService {
      * @param size   조회할 개수
      * @return 커서 페이지 응답
      */
-    CursorPageResponse getArticles(Long lastId, int size, java.util.List<String> searchTypes, String keyword);
+    CursorPageResponse getArticles(Long lastId, int size, java.util.List<String> searchTypes, String keyword, ArticleSortType sortType);
 }

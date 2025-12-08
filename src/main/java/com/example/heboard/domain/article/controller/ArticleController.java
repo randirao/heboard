@@ -5,6 +5,7 @@ import com.example.heboard.domain.article.dto.ArticleDeleteResponse;
 import com.example.heboard.domain.article.dto.ArticleResponse;
 import com.example.heboard.domain.article.dto.ArticleUpdateRequest;
 import com.example.heboard.domain.article.dto.CursorPageResponse;
+import com.example.heboard.domain.article.model.ArticleSortType;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.domain.article.service.ArticleService;
@@ -342,11 +343,13 @@ public class ArticleController {
             @RequestParam(value = "lastId", required = false) Long lastId,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "searchType", required = false) String searchType,
-            @RequestParam(value = "keyword", required = false) String keyword
+            @RequestParam(value = "keyword", required = false) String keyword,
+            @RequestParam(value = "sort", defaultValue = "latest") String sort
     ) {
         // searchType이 없으면 기존 목록 조회, searchType/keyword 둘 중 하나라도 있으면 모두 검증
         java.util.List<String> searchTypes = parseSearchTypes(searchType, keyword);
-        CursorPageResponse response = articleService.getArticles(lastId, size, searchTypes, keyword);
+        ArticleSortType sortType = ArticleSortType.from(sort);
+        CursorPageResponse response = articleService.getArticles(lastId, size, searchTypes, keyword, sortType);
         return ResponseEntity.ok(response);
     }
 
