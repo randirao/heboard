@@ -7,6 +7,7 @@ import com.example.heboard.domain.user.dto.UserInfo;
 import com.example.heboard.domain.user.entity.User;
 import com.example.heboard.domain.user.repository.UserRepository;
 import com.example.heboard.global.exception.AuthenticationException;
+import com.example.heboard.global.exception.EmailNotVerifiedException;
 import com.example.heboard.global.exception.InvalidPasswordException;
 import com.example.heboard.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -26,13 +27,18 @@ public class AuthService {
 
     @Transactional
     public LoginResponse login(LoginRequest request) {
-        // 1. 사용자 인증: 이메일로 사용자 조회
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new AuthenticationException("이메일 또는 비밀번호가 올바르지 않습니다"));
+        // 1. 사용자 인증: 이메일 또는 닉네임으로 사용자 조회
+        String identifier = request.getIdentifier();
+        User user = userRepository.findByEmailOrNickname(identifier, identifier)
+                .orElseThrow(() -> new AuthenticationException("이메일/닉네임 또는 비밀번호가 올바르지 않습니다"));
 
         // 2. 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidPasswordException("이메일 또는 비밀번호가 올바르지 않습니다");
+            throw new InvalidPasswordException("이메일/닉네임 또는 비밀번호가 올바르지 않습니다");
+        }
+
+        if (!user.isEmailVerified()) {
+            throw new EmailNotVerifiedException("이메일 인증을 완료한 후 로그인할 수 있습니다");
         }
 
         // 3. JWT 토큰 생성

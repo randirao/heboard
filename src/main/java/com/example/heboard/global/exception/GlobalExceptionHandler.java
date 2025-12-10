@@ -9,6 +9,9 @@ import com.example.heboard.domain.comment.dto.CommentUpdateRequest;
 import com.example.heboard.domain.comment.exception.CommentErrorCode;
 import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.global.common.ErrorResponse;
+import com.example.heboard.global.exception.EmailAlreadyVerifiedException;
+import com.example.heboard.global.exception.EmailNotVerifiedException;
+import com.example.heboard.global.exception.InvalidVerificationTokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -97,6 +100,27 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleInvalidPasswordException(InvalidPasswordException e) {
         log.warn("비밀번호 불일치: {}", e.getMessage());
+        return ErrorResponse.of(e.getMessage());
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleEmailNotVerifiedException(EmailNotVerifiedException e) {
+        log.warn("이메일 미인증: {}", e.getMessage());
+        return ErrorResponse.of(e.getMessage());
+    }
+
+    @ExceptionHandler(EmailAlreadyVerifiedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEmailAlreadyVerifiedException(EmailAlreadyVerifiedException e) {
+        log.warn("이미 인증된 이메일: {}", e.getMessage());
+        return ErrorResponse.of(e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidVerificationTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleInvalidVerificationToken(InvalidVerificationTokenException e) {
+        log.warn("잘못된 이메일 인증 토큰: {}", e.getMessage());
         return ErrorResponse.of(e.getMessage());
     }
 

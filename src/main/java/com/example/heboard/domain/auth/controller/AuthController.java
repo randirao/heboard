@@ -5,6 +5,8 @@ import com.example.heboard.domain.auth.dto.LoginResponse;
 import com.example.heboard.domain.auth.dto.SignupRequest;
 import com.example.heboard.domain.auth.dto.SignupResponse;
 import com.example.heboard.domain.auth.service.AuthService;
+import com.example.heboard.domain.auth.dto.EmailVerificationResponse;
+import com.example.heboard.domain.auth.service.EmailVerificationService;
 import com.example.heboard.domain.user.service.UserService;
 import com.example.heboard.global.common.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
     private final UserService userService;
 
     @Operation(summary = "회원가입", description = "이메일과 비밀번호로 회원가입합니다")
@@ -38,6 +41,21 @@ public class AuthController {
     public ApiResponse<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ApiResponse.success("로그인 성공", response);
+    }
+
+    @Operation(summary = "이메일 인증", description = "이메일로 전송된 토큰으로 계정을 활성화합니다")
+    @GetMapping("/verify-email")
+    public ApiResponse<EmailVerificationResponse> verifyEmail(@RequestParam String token) {
+        EmailVerificationResponse response = emailVerificationService.verifyEmail(token);
+        return ApiResponse.success("이메일 인증이 완료되었습니다", response);
+    }
+
+    @Operation(summary = "이메일 인증 메일 재발송", description = "이메일 인증이 되지 않은 계정에 인증 메일을 재발송합니다")
+    @PostMapping("/resend-verification")
+    public ApiResponse<Void> resendVerification(@RequestParam String email) {
+        boolean sent = emailVerificationService.resendVerificationEmail(email);
+        String message = sent ? "인증 메일을 재발송했습니다" : "가입은 되어 있지만 메일 발송에 실패했습니다. 메일 설정을 확인해주세요.";
+        return ApiResponse.success(message, null);
     }
 
     /**

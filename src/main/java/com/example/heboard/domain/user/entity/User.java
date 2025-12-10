@@ -31,6 +31,12 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String nickname;
 
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    @Column
+    private LocalDateTime verifiedAt;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -48,5 +54,10 @@ public class User {
 
     public void updatePassword(String password) {
         this.password = password;
+    }
+
+    public void verifyEmail() {
+        this.emailVerified = true;
+        this.verifiedAt = LocalDateTime.now();
     }
 }

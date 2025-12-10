@@ -2,6 +2,7 @@ package com.example.heboard.domain.user.service;
 
 import com.example.heboard.domain.auth.dto.SignupRequest;
 import com.example.heboard.domain.auth.dto.SignupResponse;
+import com.example.heboard.domain.auth.service.EmailVerificationService;
 import com.example.heboard.domain.user.entity.User;
 import com.example.heboard.domain.user.repository.UserRepository;
 import com.example.heboard.global.exception.DuplicateEmailException;
@@ -19,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailVerificationService emailVerificationService;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
@@ -45,10 +47,16 @@ public class UserService {
         User savedUser = userRepository.save(user);
         log.info("회원가입 성공: userId={}", savedUser.getId());
 
+        boolean mailSent = emailVerificationService.sendVerificationEmail(savedUser);
+        log.info("이메일 인증 메일 발송 결과: userId={}, sent={}", savedUser.getId(), mailSent);
+
         return new SignupResponse(
                 savedUser.getId(),
                 savedUser.getEmail(),
-                savedUser.getCreatedAt()
+                savedUser.getCreatedAt(),
+                savedUser.isEmailVerified(),
+                savedUser.getVerifiedAt(),
+                mailSent
         );
     }
 }

@@ -7,12 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
-public class SignupResponse {
+public class EmailVerificationResponse {
 
-    private Long id;
     private String email;
-    private LocalDateTime createdAt;
-    private boolean emailVerified;
     private LocalDateTime verifiedAt;
-    private boolean verificationEmailSent;
 }
