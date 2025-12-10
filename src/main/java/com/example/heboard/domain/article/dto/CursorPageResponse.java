@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 public class CursorPageResponse {
-    private List<ArticlePreviewResponse> articles;
+    private List<ArticlePreviewResponse> posts;
     private Long nextCursor;
-    private boolean hasNext;
+    private boolean hasMore;
 }

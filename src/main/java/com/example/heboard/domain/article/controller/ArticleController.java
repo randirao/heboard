@@ -195,15 +195,7 @@ public class ArticleController {
      */
     @Operation(summary = "게시글 삭제", description = "작성자 본인만 게시글을 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "게시글 삭제 성공",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ArticleDeleteResponse.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "message": "게시글이 성공적으로 삭제되었습니다.",
-                                      "articleId": 7
-                                    }
-                                    """))),
+            @ApiResponse(responseCode = "204", description = "게시글 삭제 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = """
@@ -238,11 +230,10 @@ public class ArticleController {
                                     """)))
     })
     @DeleteMapping("/{id}")
-    public ResponseEntity<ArticleDeleteResponse> deleteArticle(@PathVariable("id") Long articleId) {
+    public ResponseEntity<Void> deleteArticle(@PathVariable("id") Long articleId) {
         JwtUserPrincipal principal = getPrincipal();
         articleService.deleteArticle(articleId, principal.getUserId());
-        ArticleDeleteResponse response = new ArticleDeleteResponse("게시글이 성공적으로 삭제되었습니다.", articleId);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     /**

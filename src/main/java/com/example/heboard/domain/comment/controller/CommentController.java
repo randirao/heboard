@@ -179,15 +179,7 @@ public class CommentController {
      */
     @Operation(summary = "댓글 삭제", description = "댓글 작성자 본인만 삭제합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "댓글 삭제 성공",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = DeleteCommentResponse.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                      "success": true,
-                                      "message": "댓글이 성공적으로 삭제되었습니다."
-                                    }
-                                    """))),
+            @ApiResponse(responseCode = "204", description = "댓글 삭제 성공"),
             @ApiResponse(responseCode = "401", description = "인증 실패",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = """
@@ -226,10 +218,10 @@ public class CommentController {
                                     """)))
     })
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<DeleteCommentResponse> deleteComment(@PathVariable("id") Long commentId) {
+    public ResponseEntity<Void> deleteComment(@PathVariable("id") Long commentId) {
         JwtUserPrincipal principal = getPrincipal();
         commentService.deleteComment(commentId, principal.getUserId());
-        return ResponseEntity.ok(DeleteCommentResponse.ok());
+        return ResponseEntity.noContent().build();
     }
 
     /**

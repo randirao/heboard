@@ -48,9 +48,7 @@ class CommentControllerTest {
 
         mockMvc.perform(delete("/api/comments/{id}", 10L)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.message").value("댓글이 성공적으로 삭제되었습니다."));
+                .andExpect(status().isNoContent());
 
         Mockito.verify(commentService).deleteComment(10L, 1L);
     }

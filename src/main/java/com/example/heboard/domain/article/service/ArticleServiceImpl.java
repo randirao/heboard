@@ -190,9 +190,9 @@ public class ArticleServiceImpl implements ArticleService {
             boolean hasNext = previews.size() == size;
 
             return CursorPageResponse.builder()
-                    .articles(previews)
+                    .posts(previews)
                     .nextCursor(nextCursor)
-                    .hasNext(hasNext)
+                    .hasMore(hasNext)
                     .build();
         } catch (DataAccessException e) {
             log.error("게시글 목록 조회 실패", e);
