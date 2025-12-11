@@ -1,4 +1,4 @@
-FROM gradle:8.14-jdk17 AS build
+FROM gradle:8.4-jdk21 AS build
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ COPY src ./src
 
 RUN gradle build -x test --no-daemon
 
-FROM gradle:8.4-jdk21
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
