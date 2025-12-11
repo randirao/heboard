@@ -17,6 +17,8 @@ public class ArticlePreviewResponse {
     private Long writerId;
     private String writerName;
     private LocalDateTime createdAt;
+    private Long viewCount;
+    private Long commentCount;
 
     public static ArticlePreviewResponse from(Article article) {
         String content = article.getContent() == null ? "" : article.getContent();
@@ -29,6 +31,8 @@ public class ArticlePreviewResponse {
                 .writerId(article.getWriterId())
                 .writerName(article.getWriterName())
                 .createdAt(article.getCreatedAt())
+                .viewCount(article.getViewCount() == null ? 0L : article.getViewCount())
+                .commentCount(article.getCommentCount() == null ? 0L : article.getCommentCount())
                 .build();
     }
 }

@@ -63,4 +63,11 @@ public class Article {
         this.content = content;
         this.updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * 조회수를 1 증가시킨다.
+     */
+    public void increaseViewCount() {
+        this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
+    }
 }

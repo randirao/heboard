@@ -108,12 +108,13 @@ public class ArticleServiceImpl implements ArticleService {
     /**
      * 게시글을 단건 조회한다.
      */
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
     public ArticleResponse getArticleById(Long articleId) {
         try {
             Article article = articleRepository.findById(articleId)
                     .orElseThrow(ArticleNotFoundException::new);
+            article.increaseViewCount();
             return ArticleResponse.from(article);
         } catch (DataAccessException e) {
             log.error("게시글 조회 실패", e);
