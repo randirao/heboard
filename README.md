@@ -67,7 +67,7 @@ heboard는 gc-board 수업 프로젝트를 기반으로 만든 자유 게시판 
 - Java 21
 - Spring Boot 3.3.2
 - Spring Data JPA
-- MySQL 8.0
+- PostgreSQL 15+ (Render/Local)
 - Spring Security + JWT
 
 ### Frontend
@@ -145,8 +145,8 @@ cd backend
 # application.yml 설정
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/heboard
-    username: root
+    url: jdbc:postgresql://localhost:5432/heboard
+    username: heboard
     password: your-password
 
 ./gradlew bootRun

@@ -1,24 +1,19 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: heboard-mysql
+  postgres:
+    image: postgres:15
+    container_name: heboard-postgres
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: heboard
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_CHARACTER_SET_SERVER: utf8mb4
-      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+      POSTGRES_DB: heboard
+      POSTGRES_USER: heboard
+      POSTGRES_PASSWORD: heboard
       TZ: Asia/Seoul
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - heboard-network
 
@@ -43,17 +38,17 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: docker
-      DB_URL: jdbc:mysql://mysql:3306/heboard?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      DB_USERNAME: root
-      DB_PASSWORD: root
+      DB_URL: jdbc:postgresql://postgres:5432/heboard
+      DB_USER: heboard
+      DB_PASSWORD: heboard
     depends_on:
-      - mysql
+      - postgres
       - redis
     networks:
       - heboard-network
 
 volumes:
-  mysql-data:
+  postgres-data:
   redis-data:
 
 networks:

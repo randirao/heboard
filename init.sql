@@ -1,14 +1,7 @@
--- 초기 데이터베이스 설정
-CREATE DATABASE IF NOT EXISTS heboard CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- PostgreSQL 초기화 예시 스크립트 (필요 시 사용)
+-- docker-compose에서는 POSTGRES_DB 환경변수로 DB가 생성되므로 기본적으로 필요 없습니다.
+-- 첫 생성 시 추가 데이터를 넣고 싶다면 아래를 참고해 주석을 해제하세요.
 
-USE heboard;
-
--- 예시: 초기 테이블 생성 (필요시 수정)
--- CREATE TABLE IF NOT EXISTS users (
---     id BIGINT AUTO_INCREMENT PRIMARY KEY,
---     username VARCHAR(50) NOT NULL UNIQUE,
---     email VARCHAR(100) NOT NULL UNIQUE,
---     password VARCHAR(255) NOT NULL,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
--- );
+-- 
+-- INSERT INTO some_table (col1, col2) VALUES ('value1', 'value2');
+--
