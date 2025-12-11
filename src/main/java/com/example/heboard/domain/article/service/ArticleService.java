@@ -54,4 +54,11 @@ public interface ArticleService {
      * @return 커서 페이지 응답
      */
     CursorPageResponse getArticles(Long lastId, int size, java.util.List<String> searchTypes, String keyword, ArticleSortType sortType);
+
+    /**
+     * 전체 게시글 수 조회
+     *
+     * @return 게시글 수
+     */
+    long getArticleCount();
 }

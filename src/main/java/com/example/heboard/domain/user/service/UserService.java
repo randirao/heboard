@@ -59,4 +59,9 @@ public class UserService {
                 mailSent
         );
     }
+
+    @Transactional(readOnly = true)
+    public long getUserCount() {
+        return userRepository.count();
+    }
 }

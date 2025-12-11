@@ -210,4 +210,10 @@ public class ArticleServiceImpl implements ArticleService {
             case COMMENTS -> Sort.by(Sort.Direction.DESC, "commentCount").and(Sort.by(Sort.Direction.DESC, "id"));
         };
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public long getArticleCount() {
+        return articleRepository.count();
+    }
 }
