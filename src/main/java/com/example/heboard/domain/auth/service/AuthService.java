@@ -7,7 +7,6 @@ import com.example.heboard.domain.user.dto.UserInfo;
 import com.example.heboard.domain.user.entity.User;
 import com.example.heboard.domain.user.repository.UserRepository;
 import com.example.heboard.global.exception.AuthenticationException;
-import com.example.heboard.global.exception.EmailNotVerifiedException;
 import com.example.heboard.global.exception.InvalidPasswordException;
 import com.example.heboard.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +34,6 @@ public class AuthService {
         // 2. 비밀번호 검증
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new InvalidPasswordException("이메일/닉네임 또는 비밀번호가 올바르지 않습니다");
-        }
-
-        if (!user.isEmailVerified()) {
-            throw new EmailNotVerifiedException("이메일 인증을 완료한 후 로그인할 수 있습니다");
         }
 
         // 3. JWT 토큰 생성
