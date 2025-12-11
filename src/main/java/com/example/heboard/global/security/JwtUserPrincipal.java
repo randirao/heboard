@@ -1,4 +1,4 @@
-package com.example.heboard.security;
+package com.example.heboard.global.security;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

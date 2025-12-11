@@ -1,4 +1,4 @@
-package com.example.heboard.config;
+package com.example.heboard.global.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

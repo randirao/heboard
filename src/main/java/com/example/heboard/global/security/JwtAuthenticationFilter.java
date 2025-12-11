@@ -1,4 +1,4 @@
-package com.example.heboard.security;
+package com.example.heboard.global.security;
 
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.global.common.ErrorResponse;

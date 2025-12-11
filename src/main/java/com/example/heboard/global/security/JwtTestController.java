@@ -1,4 +1,4 @@
-package com.example.heboard.security;
+package com.example.heboard.global.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

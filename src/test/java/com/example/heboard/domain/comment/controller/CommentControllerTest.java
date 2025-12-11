@@ -3,7 +3,7 @@ package com.example.heboard.domain.comment.controller;
 import com.example.heboard.domain.comment.exception.CommentForbiddenException;
 import com.example.heboard.domain.comment.exception.CommentNotFoundException;
 import com.example.heboard.domain.comment.service.CommentService;
-import com.example.heboard.security.JwtUserPrincipal;
+import com.example.heboard.global.security.JwtUserPrincipal;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

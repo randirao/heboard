@@ -9,7 +9,7 @@ import com.example.heboard.domain.article.model.ArticleSortType;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
 import com.example.heboard.domain.article.service.ArticleService;
-import com.example.heboard.security.JwtUserPrincipal;
+import com.example.heboard.global.security.JwtUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;

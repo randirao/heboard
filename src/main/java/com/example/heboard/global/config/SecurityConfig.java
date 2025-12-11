@@ -1,9 +1,9 @@
-package com.example.heboard.config;
+package com.example.heboard.global.config;
 
 import com.example.heboard.global.jwt.JwtTokenProvider;
-import com.example.heboard.security.JwtAccessDeniedHandler;
-import com.example.heboard.security.JwtAuthenticationEntryPoint;
-import com.example.heboard.security.JwtAuthenticationFilter;
+import com.example.heboard.global.security.JwtAccessDeniedHandler;
+import com.example.heboard.global.security.JwtAuthenticationEntryPoint;
+import com.example.heboard.global.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

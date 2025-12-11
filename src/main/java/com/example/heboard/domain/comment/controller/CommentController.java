@@ -10,7 +10,7 @@ import com.example.heboard.domain.comment.exception.CommentException;
 import com.example.heboard.domain.comment.service.CommentService;
 import com.example.heboard.domain.article.exception.ArticleErrorCode;
 import com.example.heboard.domain.article.exception.ArticleException;
-import com.example.heboard.security.JwtUserPrincipal;
+import com.example.heboard.global.security.JwtUserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
