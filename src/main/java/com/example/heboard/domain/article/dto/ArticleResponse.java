@@ -34,4 +34,18 @@ public class ArticleResponse {
                 .commentCount(article.getCommentCount() == null ? 0L : article.getCommentCount())
                 .build();
     }
+
+    public static ArticleResponse from(Article article, long commentCount) {
+        return ArticleResponse.builder()
+                .articleId(article.getId())
+                .title(article.getTitle())
+                .content(article.getContent())
+                .writerId(article.getWriterId())
+                .writerName(article.getWriterName())
+                .createdAt(article.getCreatedAt())
+                .updatedAt(article.getUpdatedAt())
+                .viewCount(article.getViewCount() == null ? 0L : article.getViewCount())
+                .commentCount(commentCount)
+                .build();
+    }
 }

@@ -17,6 +17,7 @@ import com.example.heboard.domain.article.exception.DatabaseException;
 import com.example.heboard.domain.article.exception.ForbiddenException;
 import com.example.heboard.domain.article.model.ArticleSortType;
 import com.example.heboard.domain.article.repository.ArticleRepository;
+import com.example.heboard.domain.comment.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final CommentRepository commentRepository;
 
     /**
      * 게시글을 생성하고 저장한다.
@@ -115,7 +117,8 @@ public class ArticleServiceImpl implements ArticleService {
             Article article = articleRepository.findById(articleId)
                     .orElseThrow(ArticleNotFoundException::new);
             article.increaseViewCount();
-            return ArticleResponse.from(article);
+            long commentCount = commentRepository.countByArticleId(articleId);
+            return ArticleResponse.from(article, commentCount);
         } catch (DataAccessException e) {
             log.error("게시글 조회 실패", e);
             throw new ArticleReadDatabaseException(e);
@@ -183,8 +186,18 @@ public class ArticleServiceImpl implements ArticleService {
                 articles = articleRepository.findArticlesWithCursor(lastId, pageable, sortType.name().toLowerCase());
             }
 
+            List<Long> articleIds = articles.stream().map(Article::getId).toList();
+            var commentCounts = commentRepository.countByArticleIds(articleIds).stream()
+                    .collect(Collectors.toMap(
+                            com.example.heboard.domain.comment.repository.CommentRepository.CommentCount::getArticleId,
+                            cc -> cc.getCount() == null ? 0L : cc.getCount()
+                    ));
+
             List<ArticlePreviewResponse> previews = articles.stream()
-                    .map(ArticlePreviewResponse::from)
+                    .map(article -> ArticlePreviewResponse.from(
+                            article,
+                            commentCounts.getOrDefault(article.getId(), article.getCommentCount() == null ? 0L : article.getCommentCount())
+                    ))
                     .collect(Collectors.toList());
 
             Long nextCursor = previews.isEmpty() ? null : previews.get(previews.size() - 1).getArticleId();

@@ -35,4 +35,20 @@ public class ArticlePreviewResponse {
                 .commentCount(article.getCommentCount() == null ? 0L : article.getCommentCount())
                 .build();
     }
+
+    public static ArticlePreviewResponse from(Article article, long commentCount) {
+        String content = article.getContent() == null ? "" : article.getContent();
+        String preview = content.substring(0, Math.min(50, content.length()));
+
+        return ArticlePreviewResponse.builder()
+                .articleId(article.getId())
+                .title(article.getTitle())
+                .contentPreview(preview)
+                .writerId(article.getWriterId())
+                .writerName(article.getWriterName())
+                .createdAt(article.getCreatedAt())
+                .viewCount(article.getViewCount() == null ? 0L : article.getViewCount())
+                .commentCount(commentCount)
+                .build();
+    }
 }
