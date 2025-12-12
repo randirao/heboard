@@ -46,16 +46,16 @@ public class DataSourceConfig {
         }
 
         if (candidate.startsWith("postgres://")) {
-            return "jdbc:postgresql://" + candidate.substring("postgres://".length());
+            return ensureSsl("jdbc:postgresql://" + candidate.substring("postgres://".length()));
         }
         if (candidate.startsWith("postgresql://")) {
-            return "jdbc:postgresql://" + candidate.substring("postgresql://".length());
+            return ensureSsl("jdbc:postgresql://" + candidate.substring("postgresql://".length()));
         }
         if (candidate.startsWith("jdbc:postgresql://")) {
-            return candidate;
+            return ensureSsl(candidate);
         }
 
-        return candidate;
+        return ensureSsl(candidate);
     }
 
     private String firstNonEmpty(String... values) {
@@ -65,5 +65,20 @@ public class DataSourceConfig {
             }
         }
         return null;
+    }
+
+    private String ensureSsl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return url;
+        }
+        // sslmode가 이미 포함되어 있으면 그대로 사용
+        if (url.contains("sslmode=")) {
+            return url;
+        }
+        // 쿼리스트링 유무에 따라 구분자 추가
+        if (url.contains("?")) {
+            return url + "&sslmode=require";
+        }
+        return url + "?sslmode=require";
     }
 }
