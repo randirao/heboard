@@ -68,7 +68,9 @@ public class SecurityConfig {
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:3001",
-                "http://localhost:5173"
+                "http://localhost:5173",
+                "https://heboard-front.vercel.app",
+                "https://heboard-front-pqa3evzec-han22s-projects.vercel.app"
         ));
         config.setAllowedMethods(List.of(
                 HttpMethod.GET.name(),
