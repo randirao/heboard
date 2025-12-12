@@ -1,13 +1,14 @@
 package com.example.heboard.global.config;
 
-import javax.sql.DataSource;
-
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.util.StringUtils;
+
+import javax.sql.DataSource;
+import java.net.URI;
 
 @Configuration
 public class DataSourceConfig {
@@ -21,7 +22,7 @@ public class DataSourceConfig {
     @Bean
     @Primary
     public DataSource dataSource(DataSourceProperties properties) {
-        String resolvedUrl = resolveDatabaseUrl(properties.getUrl());
+        String resolvedUrl = resolveDatabaseUrl(properties.getUrl(), properties);
         if (StringUtils.hasText(resolvedUrl)) {
             properties.setUrl(resolvedUrl);
         }
@@ -36,7 +37,7 @@ public class DataSourceConfig {
         return properties.initializeDataSourceBuilder().build();
     }
 
-    private String resolveDatabaseUrl(String defaultUrl) {
+    private String resolveDatabaseUrl(String defaultUrl, DataSourceProperties properties) {
         String externalUrl = environment.getProperty("EXTERNAL_DATABASE_URL");
         String internalUrl = environment.getProperty("INTERNAL_DATABASE_URL");
 
@@ -45,17 +46,77 @@ public class DataSourceConfig {
             return defaultUrl;
         }
 
-        if (candidate.startsWith("postgres://")) {
-            return ensureSsl("jdbc:postgresql://" + candidate.substring("postgres://".length()));
-        }
-        if (candidate.startsWith("postgresql://")) {
-            return ensureSsl("jdbc:postgresql://" + candidate.substring("postgresql://".length()));
-        }
-        if (candidate.startsWith("jdbc:postgresql://")) {
+        return normalizeJdbcUrl(candidate, defaultUrl, properties);
+    }
+
+    private String normalizeJdbcUrl(String candidate, String defaultUrl, DataSourceProperties properties) {
+        try {
+            // remove optional jdbc: prefix and normalize scheme
+            String withoutJdbc = candidate.replaceFirst("^jdbc:", "");
+            String normalized = withoutJdbc.replaceFirst("^postgres://", "postgresql://");
+
+            URI uri = URI.create(normalized);
+
+            // extract user info if present
+            String userInfo = uri.getUserInfo();
+            if (StringUtils.hasText(userInfo)) {
+                String[] parts = userInfo.split(":", 2);
+                if (parts.length > 0 && StringUtils.hasText(parts[0]) && !StringUtils.hasText(properties.getUsername())) {
+                    properties.setUsername(parts[0]);
+                }
+                if (parts.length > 1 && StringUtils.hasText(parts[1]) && !StringUtils.hasText(properties.getPassword())) {
+                    properties.setPassword(parts[1]);
+                }
+            }
+
+            String host = uri.getHost();
+            int port = uri.getPort();
+            String path = uri.getPath();
+            String query = uri.getQuery();
+
+            if (!StringUtils.hasText(host)) {
+                return ensureSsl(defaultUrl);
+            }
+
+            StringBuilder jdbc = new StringBuilder("jdbc:postgresql://").append(host);
+            if (port != -1) {
+                jdbc.append(":").append(port);
+            }
+            if (StringUtils.hasText(path)) {
+                jdbc.append(path);
+            }
+
+            String finalQuery = appendSslMode(query);
+            if (StringUtils.hasText(finalQuery)) {
+                jdbc.append("?").append(finalQuery);
+            }
+            return jdbc.toString();
+        } catch (Exception e) {
             return ensureSsl(candidate);
         }
+    }
 
-        return ensureSsl(candidate);
+    private String appendSslMode(String query) {
+        if (!StringUtils.hasText(query)) {
+            return "sslmode=require";
+        }
+        if (query.contains("sslmode=")) {
+            return query;
+        }
+        return query + "&sslmode=require";
+    }
+
+    private String ensureSsl(String url) {
+        if (!StringUtils.hasText(url)) {
+            return url;
+        }
+        if (url.contains("sslmode=")) {
+            return url;
+        }
+        if (url.contains("?")) {
+            return url + "&sslmode=require";
+        }
+        return url + "?sslmode=require";
     }
 
     private String firstNonEmpty(String... values) {
@@ -65,20 +126,5 @@ public class DataSourceConfig {
             }
         }
         return null;
-    }
-
-    private String ensureSsl(String url) {
-        if (!StringUtils.hasText(url)) {
-            return url;
-        }
-        // sslmode가 이미 포함되어 있으면 그대로 사용
-        if (url.contains("sslmode=")) {
-            return url;
-        }
-        // 쿼리스트링 유무에 따라 구분자 추가
-        if (url.contains("?")) {
-            return url + "&sslmode=require";
-        }
-        return url + "?sslmode=require";
     }
 }
