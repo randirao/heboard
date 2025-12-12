@@ -18,8 +18,8 @@ public class ArticleResponse {
     private String writerName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long viewCount;
-    private Long commentCount;
+    private long viewCount;
+    private long commentCount;
 
     public static ArticleResponse from(Article article) {
         return ArticleResponse.builder()
