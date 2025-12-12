@@ -26,7 +26,7 @@ public class JwtTokenProvider {
     private final RefreshTokenRepository refreshTokenRepository;
 
     public JwtTokenProvider(
-            @Value("${jwt.secret}") String secret,
+            @Value("${JWT_SECRET:${jwt.secret}}") String secret,
             @Value("${jwt.access-token-expiration}") long accessTokenExpiration,
             @Value("${jwt.refresh-token-expiration}") long refreshTokenExpiration,
             RefreshTokenRepository refreshTokenRepository
