@@ -48,6 +48,8 @@ public class CommentServiceImpl implements CommentService {
 
         try {
             Comment saved = commentRepository.save(comment);
+            article.increaseCommentCount();
+            articleRepository.save(article);
             log.info("댓글 저장 성공: id={}, articleId={}, writerId={}", saved.getId(), article.getId(), userId);
             return CommentResponse.from(saved);
         } catch (DataAccessException e) {
@@ -95,7 +97,12 @@ public class CommentServiceImpl implements CommentService {
         }
 
         try {
+            Article article = comment.getArticle();
             commentRepository.delete(comment);
+            if (article != null) {
+                article.decreaseCommentCount();
+                articleRepository.save(article);
+            }
             log.info("댓글 삭제 성공: id={}, writerId={}", commentId, userId);
         } catch (DataAccessException e) {
             log.error("댓글 삭제 실패", e);

@@ -70,4 +70,13 @@ public class Article {
     public void increaseViewCount() {
         this.viewCount = (this.viewCount == null ? 0L : this.viewCount) + 1;
     }
+
+    public void increaseCommentCount() {
+        this.commentCount = (this.commentCount == null ? 0L : this.commentCount) + 1;
+    }
+
+    public void decreaseCommentCount() {
+        long current = this.commentCount == null ? 0L : this.commentCount;
+        this.commentCount = Math.max(0, current - 1);
+    }
 }
