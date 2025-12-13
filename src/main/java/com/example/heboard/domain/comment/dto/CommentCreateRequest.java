@@ -18,4 +18,7 @@ public class CommentCreateRequest {
 
     @NotBlank(message = "댓글 내용은 비어 있을 수 없습니다.")
     private String content;
+
+    // 대댓글 작성 시 부모 댓글 ID (선택)
+    private Long parentId;
 }

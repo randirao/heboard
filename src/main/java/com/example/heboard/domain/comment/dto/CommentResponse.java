@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class CommentResponse {
     private Long id;
     private Long articleId;
+    private Long parentId;
     private String content;
     private WriterResponse writer;
     private LocalDateTime createdAt;
@@ -22,6 +23,7 @@ public class CommentResponse {
         return CommentResponse.builder()
                 .id(comment.getId())
                 .articleId(comment.getArticle().getId())
+                .parentId(comment.getParent() == null ? null : comment.getParent().getId())
                 .content(comment.getContent())
                 .writer(new WriterResponse(comment.getWriterId(), comment.getWriterName()))
                 .createdAt(comment.getCreatedAt())

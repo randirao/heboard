@@ -22,6 +22,10 @@ public class Comment {
     @JoinColumn(name = "article_id")
     private Article article;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
     @Column(nullable = false)
     private Long writerId;
 

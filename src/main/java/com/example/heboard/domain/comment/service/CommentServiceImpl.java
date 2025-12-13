@@ -39,8 +39,18 @@ public class CommentServiceImpl implements CommentService {
         Article article = articleRepository.findById(request.getArticleId())
                 .orElseThrow(ArticleNotFoundException::new);
 
+        Comment parent = null;
+        if (request.getParentId() != null) {
+            parent = commentRepository.findById(request.getParentId())
+                    .orElseThrow(CommentNotFoundException::new);
+            if (!parent.getArticle().getId().equals(article.getId())) {
+                throw new CommentNotFoundException();
+            }
+        }
+
         Comment comment = Comment.builder()
                 .article(article)
+                .parent(parent)
                 .writerId(userId)
                 .writerName(userName)
                 .content(request.getContent())
