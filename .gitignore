@@ -41,3 +41,20 @@ out/
 .env.example
 application-local.properties
 application-prod.properties
+application-local.yml
+application-prod.yml
+
+### macOS ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+### Log Files ###
+*.log
+logs/
+
+### Temporary Files ###
+*.tmp
+*.bak
+*.swp
+*~.nib

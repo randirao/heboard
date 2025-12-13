@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.crypto.SecretKey;
 import java.util.Date;
 
+/**
+ * ⚠️ WARNING: 개발 환경 전용 컨트롤러
+ * 프로덕션 환경에서는 반드시 비활성화해야 합니다.
+ * application.yml에서 spring.profiles.active를 prod로 설정하면 자동으로 비활성화됩니다.
+ */
 @Tag(name = "JWT 테스트", description = "개발용 JWT 토큰 생성 API")
 @RestController
 @RequestMapping("/api/auth/test")
